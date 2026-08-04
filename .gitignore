@@ -7,17 +7,27 @@ venv/
 env/
 .env
 
-# Temporary Scratch Files & Test Caches
+# Runtime Data (user captures — generated at runtime, not source code)
+raw/
+wiki/
+
+# Temporary & Test Files
 scratch/
 .pytest_cache/
 *.log
-
-# Data & Vector Cache
-.chroma/
-*.vector/
+sample_document.txt
 
 # IDE & Operating System
 .vscode/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Data & Vector Cache
+.chroma/
+*.vector/
+
+# Build & Distribution
+dist/
+build/
+*.egg-info/
