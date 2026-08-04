@@ -1,0 +1,13 @@
+{
+  "id": "raw_20260805_013234_682b9ea8",
+  "timestamp": "2026-08-05T01:32:34.829503+05:30",
+  "type": "link",
+  "source": "https://example.com",
+  "title": "Captured Link: https://example.com",
+  "raw_content": "URL: https://example.com\n\n[Warning: Unable to fetch page content: HTTPSConnectionPool(host='example.com', port=443): Read timed out. (read timeout=12)]",
+  "tags": [
+    "uncategorized",
+    "raw_ingest"
+  ],
+  "scrape_status": "failed"
+}
