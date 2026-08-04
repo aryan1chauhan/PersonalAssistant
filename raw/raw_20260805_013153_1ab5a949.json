@@ -1,0 +1,20 @@
+{
+  "id": "raw_20260805_013153_1ab5a949",
+  "timestamp": "2026-08-05T01:31:53.217726+05:30",
+  "type": "file",
+  "source": "sample_document.txt",
+  "title": "File: sample_document.txt",
+  "raw_content": "# Sample Document for SecondSelf\n\nThis is a real local text file captured into SecondSelf.\nIt contains notes on System Architecture, PARA Categorization, and Vector Search.",
+  "tags": [
+    "uncategorized",
+    "raw_ingest"
+  ],
+  "attachment": {
+    "original_filename": "sample_document.txt",
+    "stored_path": "raw\\assets\\asset_20260805_013153_20567b16_sample_document.txt",
+    "absolute_stored_path": "D:\\PersonalAssistant\\raw\\assets\\asset_20260805_013153_20567b16_sample_document.txt",
+    "size_bytes": 173,
+    "sha256": "bf843dde04db6983dc6fdac289c1688163460543004eb0bfbd92f7ba175997dc",
+    "extension": ".txt"
+  }
+}

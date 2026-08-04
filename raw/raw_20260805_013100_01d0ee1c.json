@@ -1,0 +1,13 @@
+{
+  "id": "raw_20260805_013100_01d0ee1c",
+  "timestamp": "2026-08-05T01:31:00.565611+05:30",
+  "type": "link",
+  "source": "https://example.com",
+  "title": "Example Domain",
+  "raw_content": "This domain is for use in documentation examples without needing permission. Avoid use in operations.\n\nLearn more",
+  "tags": [
+    "uncategorized",
+    "raw_ingest"
+  ],
+  "scrape_status": "success"
+}

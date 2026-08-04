@@ -81,10 +81,14 @@ def capture_item(
 
     elif item_type.lower() == "file":
         console.print(f"[bold blue]Parsing File:[/bold blue] {payload}")
-        parsed = parse_and_copy_file(payload, str(target_assets_dir))
-        record["title"] = title or parsed["title"]
-        record["raw_content"] = parsed["content"]
-        record["attachment"] = parsed["attachment"]
+        try:
+            parsed = parse_and_copy_file(payload, str(target_assets_dir))
+            record["title"] = title or parsed["title"]
+            record["raw_content"] = parsed["content"]
+            record["attachment"] = parsed["attachment"]
+        except FileNotFoundError as e:
+            console.print(f"[bold red]Error:[/bold red] File not found: '{payload}'. Please provide a valid file path.")
+            sys.exit(1)
 
     else:
         raise ValueError(f"Unsupported item type: '{item_type}'. Must be note, link, or file.")
