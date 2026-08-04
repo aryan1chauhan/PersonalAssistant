@@ -117,18 +117,10 @@ def auto_capture(payload: str, title: Optional[str] = None) -> Dict[str, Any]:
 
 
 # Click CLI Group
-@click.group(invoke_without_command=True)
-@click.pass_context
-@click.argument("input_str", required=False)
-@click.option("--title", "-t", help="Optional title for captured item.")
-def main(ctx, input_str: Optional[str], title: Optional[str]):
+@click.group()
+def main():
     """SecondSelf Capture Pipeline: Save any note, web link, or local file into raw/."""
     ensure_directories()
-    if ctx.invoked_subcommand is None:
-        if input_str:
-            auto_capture(input_str, title=title)
-        else:
-            console.print(ctx.get_help())
 
 
 @main.command("note")
@@ -155,5 +147,25 @@ def capture_file_cmd(filepath: str, title: Optional[str]):
     capture_item("file", filepath, title=title)
 
 
-if __name__ == "__main__":
+@main.command("auto")
+@click.argument("payload")
+@click.option("--title", "-t", help="Optional title for captured item.")
+def capture_auto_cmd(payload: str, title: Optional[str]):
+    """Auto-detect modality (note, URL, or file path)."""
+    auto_capture(payload, title=title)
+
+
+def cli_entrypoint():
+    """Smart CLI entrypoint allowing both subcommands and direct auto-detection."""
+    ensure_directories()
+    if len(sys.argv) > 1:
+        first_arg = sys.argv[1]
+        valid_commands = ["note", "link", "file", "auto", "--help", "-h"]
+        if first_arg not in valid_commands and not first_arg.startswith("-"):
+            # Insert 'auto' subcommand dynamically
+            sys.argv.insert(1, "auto")
     main()
+
+
+if __name__ == "__main__":
+    cli_entrypoint()
