@@ -34,25 +34,25 @@ Establish the foundational directory layout, environment configuration, dependen
 Build a unified CLI ingestion engine (`src/capture.py`) that captures text notes, web URLs, and local files into an append-only `raw/` folder with guaranteed timestamps and unique IDs.
 
 ### Tasks
-- [ ] Implement utility helper routines (`src/utils.py`):
+- [x] Implement utility helper routines (`src/utils.py`):
   - ISO-8601 timestamp generator.
   - Unique ID generator format (`raw_YYYYMMDD_HHMMSS_{UUID8}`).
   - SHA-256 asset checksum calculator.
-- [ ] Implement text note ingestion handler.
-- [ ] Implement web URL scraper (`requests` + `trafilatura` / `beautifulsoup4` to extract page title, author, and clean Markdown text).
-- [ ] Implement file parser (`pdfplumber` for PDF text extraction, saving raw attachment files into `raw/assets/`).
-- [ ] Construct unified CLI entrypoint (`src/capture.py`):
+- [x] Implement text note ingestion handler.
+- [x] Implement web URL scraper (`requests` + `trafilatura` / `beautifulsoup4` to extract page title, author, and clean Markdown text).
+- [x] Implement file parser (`pdfplumber` for PDF text extraction, saving raw attachment files into `raw/assets/`).
+- [x] Construct unified CLI entrypoint (`src/capture.py`):
   - Command: `python src/capture.py note --content "..."`
   - Command: `python src/capture.py link --url "..."`
   - Command: `python src/capture.py file --path "..."`
-- [ ] Test ingestion on 10+ real scattered items (notes, URLs, PDFs).
+- [x] Test ingestion on 10+ real scattered items (notes, URLs, PDFs).
 
 ### Verification
 - Acceptance Criteria:
-  - [ ] `raw/` and `wiki/` directory structure exists.
-  - [ ] One command captures a note, a link, AND a file.
-  - [ ] Every captured item has a timestamp + unique ID.
-  - [ ] 10+ real items captured in `raw/`.
+  - [x] `raw/` and `wiki/` directory structure exists.
+  - [x] One command captures a note, a link, AND a file.
+  - [x] Every captured item has a timestamp + unique ID.
+  - [x] 10+ real items captured in `raw/`.
 - 🏅 **Badge**: The Archivist
 
 ---

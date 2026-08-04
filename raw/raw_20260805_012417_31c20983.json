@@ -1,0 +1,12 @@
+{
+  "id": "raw_20260805_012417_31c20983",
+  "timestamp": "2026-08-05T01:24:17.507994+05:30",
+  "type": "note",
+  "source": "LLM API Optimization & Rate Limits: Groq provides ultra-fast inference with llama-3.1-70b-versatile and llama-3.1-8b-instant. Always handle HTTP 429 rate limits with exponential backoff retries using tenacity.",
+  "title": "LLM API Integration & Rate Limit Handling",
+  "raw_content": "LLM API Optimization & Rate Limits: Groq provides ultra-fast inference with llama-3.1-70b-versatile and llama-3.1-8b-instant. Always handle HTTP 429 rate limits with exponential backoff retries using tenacity.",
+  "tags": [
+    "uncategorized",
+    "raw_ingest"
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "id": "raw_20260805_012448_a3e5ed2d",
+  "timestamp": "2026-08-05T01:24:48.835732+05:30",
+  "type": "file",
+  "source": "d:\\PersonalAssistant\\scratch_rag_cheatsheet.txt",
+  "title": "RAG Indexing Cheat Sheet",
+  "raw_content": "RAG Indexing Cheat Sheet:\n- Chunk Size: 500 characters with 50 overlap\n- Embedding Model: sentence-transformers/all-MiniLM-L6-v2\n- Retrieval: Top 3 matching passages\n- Prompting: Enforce strict citations back to source note files.",
+  "tags": [
+    "uncategorized",
+    "raw_ingest"
+  ],
+  "attachment": {
+    "original_filename": "scratch_rag_cheatsheet.txt",
+    "stored_path": "raw\\assets\\asset_20260805_012448_a3212134_scratch_rag_cheatsheet.txt",
+    "absolute_stored_path": "D:\\PersonalAssistant\\raw\\assets\\asset_20260805_012448_a3212134_scratch_rag_cheatsheet.txt",
+    "size_bytes": 236,
+    "sha256": "83fda5847f83d1737d53a8feb5545162f049109396433d65c99e756255d78ad5",
+    "extension": ".txt"
+  }
+}
