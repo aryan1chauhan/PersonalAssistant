@@ -1,0 +1,30 @@
+# Core dependencies for SecondSelf - Personal AI Second Brain
+
+# CLI & Environment
+pydantic>=2.0.0
+python-dotenv>=1.0.0
+click>=8.1.0
+rich>=13.0.0
+
+# Content Fetching & Parsing
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+trafilatura>=1.6.0
+pdfplumber>=0.10.0
+pypdf>=3.15.0
+
+# Embeddings & AI Models
+sentence-transformers>=2.2.2
+torch>=2.0.0
+google-genai>=0.1.0
+groq>=0.4.0
+openai>=1.0.0
+
+# Graph Engine & UI Application
+streamlit>=1.30.0
+pyvis>=0.3.2
+networkx>=3.0
+
+# Utilities & Testing
+tenacity>=8.2.0
+pytest>=7.4.0

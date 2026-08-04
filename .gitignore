@@ -1,0 +1,18 @@
+# Python & Virtual Environments
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
+.env
+
+# Data & Vector Cache
+.chroma/
+*.vector/
+
+# IDE & Operating System
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
