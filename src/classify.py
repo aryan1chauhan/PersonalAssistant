@@ -662,12 +662,16 @@ def status_cmd():
 
 
 def cli_entrypoint():
-    """Smart CLI entrypoint."""
+    """Smart CLI entrypoint allowing direct execution, flags, or explicit subcommands."""
     _fix_windows_encoding()
-    if len(sys.argv) > 1:
+    if len(sys.argv) == 1:
+        # Default 'python classify.py' to run
+        sys.argv.insert(1, "run")
+    elif len(sys.argv) > 1:
         first_arg = sys.argv[1]
         valid_commands = ["run", "status", "--help", "-h"]
-        if first_arg not in valid_commands and not first_arg.startswith("-"):
+        if first_arg not in valid_commands:
+            # Automatically route flags like --force, --provider, etc. to run
             sys.argv.insert(1, "run")
     main()
 
