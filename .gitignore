@@ -22,6 +22,7 @@ sample_document.txt
 .idea/
 .DS_Store
 Thumbs.db
+pyrefly.toml
 
 # Data & Vector Cache
 .chroma/
