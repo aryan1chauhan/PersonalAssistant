@@ -27,6 +27,8 @@ pyrefly.toml
 # Data & Vector Cache
 .chroma/
 *.vector/
+data/*.pkl
+data/
 
 # Build & Distribution
 dist/

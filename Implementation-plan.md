@@ -78,20 +78,20 @@ Transform raw captures into organized Markdown notes within `wiki/` using LLM PA
 Compute local vector embeddings per note and automatically inject bidirectional `[[wikilinks]]` between related notes without manual tagging.
 
 ### Tasks
-- [ ] Create embedding & auto-linking module (`src/link.py`).
-- [ ] Load `sentence-transformers/all-MiniLM-L6-v2` embedding model.
-- [ ] Compute 384-dimensional dense vectors for all Markdown notes in `wiki/`.
-- [ ] Perform pairwise Cosine Similarity calculation across notes.
-- [ ] For pairs with similarity score $\ge 0.65$, automatically append bidirectional `[[Related Note Title]]` links into each note's Markdown file under `## Related Knowledge`.
-- [ ] Run pipeline across 15+ real items.
+- [x] Create embedding & auto-linking module (`src/link.py`).
+- [x] Load `sentence-transformers/all-MiniLM-L6-v2` embedding model.
+- [x] Compute 384-dimensional dense vectors for all Markdown notes in `wiki/`.
+- [x] Perform pairwise Cosine Similarity calculation across notes.
+- [x] For pairs with similarity score $\ge 0.65$, automatically append bidirectional `[[Related Note Title]]` links into each note's Markdown file under `## Related Knowledge`.
+- [x] Run pipeline across 15+ real items.
 
 ### Verification
 - Acceptance Criteria:
-  - [ ] Any raw capture → category + tags + summary automatically.
-  - [ ] PARA categorization working.
-  - [ ] Embeddings computed per note.
-  - [ ] Related notes auto-linked (no manual tagging).
-  - [ ] Runs on 15+ real items → organized `wiki/`.
+  - [x] Any raw capture → category + tags + summary automatically.
+  - [x] PARA categorization working.
+  - [x] Embeddings computed per note.
+  - [x] Related notes auto-linked (no manual tagging).
+  - [x] Runs on 15+ real items → organized `wiki/`.
 - 🏅 **Badge**: The Librarian
 
 ---
@@ -102,22 +102,22 @@ Compute local vector embeddings per note and automatically inject bidirectional 
 Convert `wiki/` notes into a node-edge graph data model exportable as `graph.json`, rendered as an interactive force-directed visual brain.
 
 ### Tasks
-- [ ] **Phase 4.1: Graph Data Model Exporter (`src/build_graph.py`)**:
+- [x] **Phase 4.1: Graph Data Model Exporter (`src/build_graph.py`)**:
   - Parse all Markdown files in `wiki/`.
   - Extract nodes (notes, categories, tags) and edges (explicit wikilinks + vector similarity edges).
   - Export structured `graph.json`.
-- [ ] **Phase 4.2: Interactive Graph Renderer (vis-network / PyVis)**:
+- [x] **Phase 4.2: Interactive Graph Renderer (vis-network / PyVis)**:
   - Create HTML template (`static/graph_template.html`).
   - Render notes as color-coded pulsing nodes matching PARA categories.
   - Implement hover popups displaying note summary & content preview, zoom, pan, and drag physics.
 
 ### Verification
 - Acceptance Criteria:
-  - [ ] Script builds nodes + edges from notes and exports clean `graph.json`.
-  - [ ] Interactive force-directed graph renders from `graph.json`.
-  - [ ] Hover reveals note content popup.
-  - [ ] Drag + zoom work smoothly.
-  - [ ] Built from real notes, not dummy data.
+  - [x] Script builds nodes + edges from notes and exports clean `graph.json`.
+  - [x] Interactive force-directed graph renders from `graph.json`.
+  - [x] Hover reveals note content popup.
+  - [x] Drag + zoom work smoothly.
+  - [x] Built from real notes, not dummy data.
 - 🏅 **Badge**: The Cartographer
 
 ---

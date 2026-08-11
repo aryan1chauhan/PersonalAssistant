@@ -1,0 +1,2079 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecondSelf — Knowledge Graph Visualizer</title>
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        header {
+            background: rgba(30, 41, 59, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 10;
+        }
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .brand h1 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.02em;
+        }
+        .badge {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 4px 10px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #94a3b8;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .stats {
+            display: flex;
+            gap: 16px;
+        }
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+            color: #cbd5e1;
+        }
+        .stat-val {
+            font-weight: 600;
+            color: #38bdf8;
+        }
+        .controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        input[type="text"] {
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: #f8fafc;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            outline: none;
+            width: 220px;
+            transition: all 0.2s;
+        }
+        input[type="text"]:focus {
+            border-color: #38bdf8;
+            box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+        }
+        button {
+            background: #334155;
+            border: none;
+            color: #f8fafc;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        button:hover {
+            background: #475569;
+        }
+        #mynetwork {
+            flex: 1;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 50%, #1e293b 0%, #0f172a 100%);
+        }
+        .legend {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(30, 41, 59, 0.9);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 0.78rem;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 5;
+            max-width: 240px;
+        }
+        .legend-title {
+            font-weight: 600;
+            color: #94a3b8;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            font-size: 0.68rem;
+            letter-spacing: 0.05em;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        div.vis-tooltip {
+            background-color: rgba(15, 23, 42, 0.95) !important;
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
+            color: #f8fafc !important;
+            font-family: 'Inter', sans-serif !important;
+            font-size: 0.85rem !important;
+            border-radius: 8px !important;
+            padding: 12px 14px !important;
+            max-width: 320px !important;
+            line-height: 1.4 !important;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="brand">
+            <h1>SecondSelf</h1>
+            <span class="badge">Living Brain Graph</span>
+        </div>
+        <div class="stats">
+            <div class="stat-item">Nodes: <span class="stat-val" id="stat-nodes">0</span></div>
+            <div class="stat-item">Notes: <span class="stat-val" id="stat-notes">0</span></div>
+            <div class="stat-item">Categories: <span class="stat-val" id="stat-cats">0</span></div>
+            <div class="stat-item">Tags: <span class="stat-val" id="stat-tags">0</span></div>
+            <div class="stat-item">Edges: <span class="stat-val" id="stat-edges">0</span></div>
+        </div>
+        <div class="controls">
+            <input type="text" id="search-input" placeholder="Search nodes..." onkeyup="searchNodes()">
+            <button onclick="resetView()">Reset View</button>
+            <button onclick="togglePhysics()" id="physics-btn">Pause Physics</button>
+        </div>
+    </header>
+
+    <div id="mynetwork"></div>
+
+    <div class="legend">
+        <div class="legend-title">PARA Categories</div>
+        <div class="legend-item"><div class="dot" style="background:#3b82f6;"></div> 1_Projects (Active)</div>
+        <div class="legend-item"><div class="dot" style="background:#10b981;"></div> 2_Areas (Responsibility)</div>
+        <div class="legend-item"><div class="dot" style="background:#f59e0b;"></div> 3_Resources (Reference)</div>
+        <div class="legend-item"><div class="dot" style="background:#64748b;"></div> 4_Archives (Inactive)</div>
+        <div class="legend-title" style="margin-top:6px;">Node Types</div>
+        <div class="legend-item"><div class="dot" style="background:#a855f7;"></div> Tag Node</div>
+        <div class="legend-item"><div class="dot" style="background:#ec4899; transform:rotate(45deg); border-radius:2px;"></div> Category Node</div>
+    </div>
+
+    <script type="text/javascript">
+        const rawData = {
+  "metadata": {
+    "generated_at": "2026-08-12T01:54:57.249038+05:30",
+    "total_nodes": 62,
+    "total_edges": 182,
+    "node_counts": {
+      "notes": 31,
+      "categories": 4,
+      "tags": 27
+    },
+    "edge_counts": {
+      "category": 31,
+      "tag": 93,
+      "explicit": 25,
+      "semantic": 33
+    }
+  },
+  "nodes": [
+    {
+      "id": "1_Projects/ai_project_development",
+      "label": "AI Project Development",
+      "group": "1_Projects",
+      "type": "note",
+      "summary": "Developing AI projects",
+      "tags": [
+        "ai",
+        "development",
+        "projects"
+      ],
+      "word_count": 28,
+      "file_path": "D:\\PersonalAssistant\\wiki\\1_Projects\\ai_project_development.md"
+    },
+    {
+      "id": "1_Projects/ai_project_development_1",
+      "label": "AI Project Development",
+      "group": "1_Projects",
+      "type": "note",
+      "summary": "Developing AI projects",
+      "tags": [
+        "ai",
+        "development",
+        "projects"
+      ],
+      "word_count": 28,
+      "file_path": "D:\\PersonalAssistant\\wiki\\1_Projects\\ai_project_development_1.md"
+    },
+    {
+      "id": "1_Projects/ai_project_development_2",
+      "label": "AI Project Development",
+      "group": "1_Projects",
+      "type": "note",
+      "summary": "Developing AI projects",
+      "tags": [
+        "ai",
+        "development",
+        "projects"
+      ],
+      "word_count": 28,
+      "file_path": "D:\\PersonalAssistant\\wiki\\1_Projects\\ai_project_development_2.md"
+    },
+    {
+      "id": "1_Projects/crunch_ai_neural_schema",
+      "label": "Crunch AI Neural Schema",
+      "group": "1_Projects",
+      "type": "note",
+      "summary": "Neural schema for Crunch AI",
+      "tags": [
+        "neural",
+        "schema",
+        "ai"
+      ],
+      "word_count": 30,
+      "file_path": "D:\\PersonalAssistant\\wiki\\1_Projects\\crunch_ai_neural_schema.md"
+    },
+    {
+      "id": "1_Projects/crunch_ai_schema",
+      "label": "Crunch AI Schema",
+      "group": "1_Projects",
+      "type": "note",
+      "summary": "Crunch AI neural schema",
+      "tags": [
+        "neural",
+        "schema",
+        "ai"
+      ],
+      "word_count": 28,
+      "file_path": "D:\\PersonalAssistant\\wiki\\1_Projects\\crunch_ai_schema.md"
+    },
+    {
+      "id": "1_Projects/crunch_ai_schema_1",
+      "label": "Crunch AI Schema",
+      "group": "1_Projects",
+      "type": "note",
+      "summary": "Neural schema design",
+      "tags": [
+        "neural",
+        "schema",
+        "ai"
+      ],
+      "word_count": 27,
+      "file_path": "D:\\PersonalAssistant\\wiki\\1_Projects\\crunch_ai_schema_1.md"
+    },
+    {
+      "id": "1_Projects/mediroute_hackathon",
+      "label": "Mediroute Hackathon",
+      "group": "1_Projects",
+      "type": "note",
+      "summary": "Solo hackathon project",
+      "tags": [
+        "hackathon",
+        "mediroute",
+        "healthcare"
+      ],
+      "word_count": 29,
+      "file_path": "D:\\PersonalAssistant\\wiki\\1_Projects\\mediroute_hackathon.md"
+    },
+    {
+      "id": "1_Projects/mediroute_hackathon_1",
+      "label": "Mediroute Hackathon",
+      "group": "1_Projects",
+      "type": "note",
+      "summary": "Solo hackathon project",
+      "tags": [
+        "hackathon",
+        "mediroute",
+        "healthcare"
+      ],
+      "word_count": 29,
+      "file_path": "D:\\PersonalAssistant\\wiki\\1_Projects\\mediroute_hackathon_1.md"
+    },
+    {
+      "id": "2_Areas/expressing_genuine_care",
+      "label": "Expressing Genuine Care",
+      "group": "2_Areas",
+      "type": "note",
+      "summary": "Expressing feelings to someone special",
+      "tags": [
+        "relationships",
+        "emotions",
+        "communication"
+      ],
+      "word_count": 42,
+      "file_path": "D:\\PersonalAssistant\\wiki\\2_Areas\\expressing_genuine_care.md"
+    },
+    {
+      "id": "2_Areas/expressing_genuine_care_1",
+      "label": "Expressing Genuine Care",
+      "group": "2_Areas",
+      "type": "note",
+      "summary": "Expressing feelings to someone special",
+      "tags": [
+        "relationships",
+        "emotions",
+        "communication"
+      ],
+      "word_count": 42,
+      "file_path": "D:\\PersonalAssistant\\wiki\\2_Areas\\expressing_genuine_care_1.md"
+    },
+    {
+      "id": "2_Areas/expressing_genuine_care_2",
+      "label": "Expressing Genuine Care",
+      "group": "2_Areas",
+      "type": "note",
+      "summary": "Expressing feelings to someone special",
+      "tags": [
+        "relationships",
+        "emotions",
+        "communication"
+      ],
+      "word_count": 42,
+      "file_path": "D:\\PersonalAssistant\\wiki\\2_Areas\\expressing_genuine_care_2.md"
+    },
+    {
+      "id": "2_Areas/gym_fitness_routine",
+      "label": "Gym Fitness Routine",
+      "group": "2_Areas",
+      "type": "note",
+      "summary": "Daily gym routine",
+      "tags": [
+        "fitness",
+        "gym",
+        "routine"
+      ],
+      "word_count": 30,
+      "file_path": "D:\\PersonalAssistant\\wiki\\2_Areas\\gym_fitness_routine.md"
+    },
+    {
+      "id": "2_Areas/gym_fitness_routine_1",
+      "label": "Gym Fitness Routine",
+      "group": "2_Areas",
+      "type": "note",
+      "summary": "Daily gym routine",
+      "tags": [
+        "fitness",
+        "gym",
+        "routine"
+      ],
+      "word_count": 30,
+      "file_path": "D:\\PersonalAssistant\\wiki\\2_Areas\\gym_fitness_routine_1.md"
+    },
+    {
+      "id": "2_Areas/gym_fitness_routine_2",
+      "label": "Gym Fitness Routine",
+      "group": "2_Areas",
+      "type": "note",
+      "summary": "Daily gym routine",
+      "tags": [
+        "fitness",
+        "gym",
+        "routine"
+      ],
+      "word_count": 30,
+      "file_path": "D:\\PersonalAssistant\\wiki\\2_Areas\\gym_fitness_routine_2.md"
+    },
+    {
+      "id": "2_Areas/nvidia_career_aspirations",
+      "label": "NVIDIA Career Aspirations",
+      "group": "2_Areas",
+      "type": "note",
+      "summary": "NVIDIA career goal",
+      "tags": [
+        "career",
+        "nvidia",
+        "ai"
+      ],
+      "word_count": 34,
+      "file_path": "D:\\PersonalAssistant\\wiki\\2_Areas\\nvidia_career_aspirations.md"
+    },
+    {
+      "id": "2_Areas/nvidia_career_goal",
+      "label": "NVIDIA Career Goal",
+      "group": "2_Areas",
+      "type": "note",
+      "summary": "NVIDIA AI engineer goal",
+      "tags": [
+        "career",
+        "nvidia",
+        "ai"
+      ],
+      "word_count": 35,
+      "file_path": "D:\\PersonalAssistant\\wiki\\2_Areas\\nvidia_career_goal.md"
+    },
+    {
+      "id": "2_Areas/nvidia_career_goal_1",
+      "label": "NVIDIA Career Goal",
+      "group": "2_Areas",
+      "type": "note",
+      "summary": "NVIDIA AI engineer goal",
+      "tags": [
+        "career",
+        "nvidia",
+        "ai"
+      ],
+      "word_count": 35,
+      "file_path": "D:\\PersonalAssistant\\wiki\\2_Areas\\nvidia_career_goal_1.md"
+    },
+    {
+      "id": "2_Areas/nvidia_career_goal_2",
+      "label": "NVIDIA Career Goal",
+      "group": "2_Areas",
+      "type": "note",
+      "summary": "NVIDIA AI engineer goal",
+      "tags": [
+        "career",
+        "nvidia",
+        "ai"
+      ],
+      "word_count": 35,
+      "file_path": "D:\\PersonalAssistant\\wiki\\2_Areas\\nvidia_career_goal_2.md"
+    },
+    {
+      "id": "2_Areas/python_career_development",
+      "label": "Python Career Development",
+      "group": "2_Areas",
+      "type": "note",
+      "summary": "Python learning for career",
+      "tags": [
+        "python",
+        "dsa",
+        "career"
+      ],
+      "word_count": 35,
+      "file_path": "D:\\PersonalAssistant\\wiki\\2_Areas\\python_career_development.md"
+    },
+    {
+      "id": "2_Areas/python_dsa_career",
+      "label": "Python DSA Career",
+      "group": "2_Areas",
+      "type": "note",
+      "summary": "Python learning for DSA",
+      "tags": [
+        "python",
+        "dsa",
+        "career"
+      ],
+      "word_count": 35,
+      "file_path": "D:\\PersonalAssistant\\wiki\\2_Areas\\python_dsa_career.md"
+    },
+    {
+      "id": "2_Areas/python_dsa_career_1",
+      "label": "Python DSA Career",
+      "group": "2_Areas",
+      "type": "note",
+      "summary": "Python learning for interviews",
+      "tags": [
+        "python",
+        "dsa",
+        "career"
+      ],
+      "word_count": 35,
+      "file_path": "D:\\PersonalAssistant\\wiki\\2_Areas\\python_dsa_career_1.md"
+    },
+    {
+      "id": "3_Resources/ml_for_beginners",
+      "label": "ML For Beginners",
+      "group": "3_Resources",
+      "type": "note",
+      "summary": "ml for beginners",
+      "tags": [
+        "machine-learning",
+        "beginners",
+        "github"
+      ],
+      "word_count": 3289,
+      "file_path": "D:\\PersonalAssistant\\wiki\\3_Resources\\ml_for_beginners.md"
+    },
+    {
+      "id": "3_Resources/ml_for_beginners_1",
+      "label": "ML For Beginners",
+      "group": "3_Resources",
+      "type": "note",
+      "summary": "ml for beginners",
+      "tags": [
+        "machine-learning",
+        "github",
+        "beginners"
+      ],
+      "word_count": 3289,
+      "file_path": "D:\\PersonalAssistant\\wiki\\3_Resources\\ml_for_beginners_1.md"
+    },
+    {
+      "id": "3_Resources/ml_for_beginners_2",
+      "label": "ML For Beginners",
+      "group": "3_Resources",
+      "type": "note",
+      "summary": "ML resources for beginners",
+      "tags": [
+        "machine-learning",
+        "beginners",
+        "github"
+      ],
+      "word_count": 3290,
+      "file_path": "D:\\PersonalAssistant\\wiki\\3_Resources\\ml_for_beginners_2.md"
+    },
+    {
+      "id": "3_Resources/tensura_anime_notes",
+      "label": "Tensura Anime Notes",
+      "group": "3_Resources",
+      "type": "note",
+      "summary": "Favorite anime Tensura",
+      "tags": [
+        "anime",
+        "tensura",
+        "fantasy"
+      ],
+      "word_count": 35,
+      "file_path": "D:\\PersonalAssistant\\wiki\\3_Resources\\tensura_anime_notes.md"
+    },
+    {
+      "id": "3_Resources/tensura_anime_notes_1",
+      "label": "Tensura Anime Notes",
+      "group": "3_Resources",
+      "type": "note",
+      "summary": "Favorite anime: Tensura",
+      "tags": [
+        "anime",
+        "tensura",
+        "fantasy"
+      ],
+      "word_count": 35,
+      "file_path": "D:\\PersonalAssistant\\wiki\\3_Resources\\tensura_anime_notes_1.md"
+    },
+    {
+      "id": "3_Resources/tensura_anime_notes_2",
+      "label": "Tensura Anime Notes",
+      "group": "3_Resources",
+      "type": "note",
+      "summary": "Favorite anime: Tensura",
+      "tags": [
+        "anime",
+        "tensura",
+        "fantasy"
+      ],
+      "word_count": 35,
+      "file_path": "D:\\PersonalAssistant\\wiki\\3_Resources\\tensura_anime_notes_2.md"
+    },
+    {
+      "id": "3_Resources/u_n_me_book_notes",
+      "label": "U n Me Book Notes",
+      "group": "3_Resources",
+      "type": "note",
+      "summary": "Tracking book progress",
+      "tags": [
+        "romance",
+        "novel",
+        "reading"
+      ],
+      "word_count": 35,
+      "file_path": "D:\\PersonalAssistant\\wiki\\3_Resources\\u_n_me_book_notes.md"
+    },
+    {
+      "id": "3_Resources/u_n_me_book_notes_1",
+      "label": "U n Me Book Notes",
+      "group": "3_Resources",
+      "type": "note",
+      "summary": "Tracking book progress",
+      "tags": [
+        "romance",
+        "novel",
+        "reading"
+      ],
+      "word_count": 35,
+      "file_path": "D:\\PersonalAssistant\\wiki\\3_Resources\\u_n_me_book_notes_1.md"
+    },
+    {
+      "id": "3_Resources/u_n_me_book_notes_2",
+      "label": "U n Me Book Notes",
+      "group": "3_Resources",
+      "type": "note",
+      "summary": "Tracking book progress",
+      "tags": [
+        "romance",
+        "novel",
+        "reading"
+      ],
+      "word_count": 35,
+      "file_path": "D:\\PersonalAssistant\\wiki\\3_Resources\\u_n_me_book_notes_2.md"
+    },
+    {
+      "id": "4_Archives/mediroute_hackathon",
+      "label": "Mediroute Hackathon",
+      "group": "4_Archives",
+      "type": "note",
+      "summary": "Solo hackathon project",
+      "tags": [
+        "hackathon",
+        "mediroute",
+        "healthcare"
+      ],
+      "word_count": 29,
+      "file_path": "D:\\PersonalAssistant\\wiki\\4_Archives\\mediroute_hackathon.md"
+    },
+    {
+      "id": "category/1_Projects",
+      "label": "1 Projects",
+      "group": "1_Projects",
+      "type": "category"
+    },
+    {
+      "id": "category/2_Areas",
+      "label": "2 Areas",
+      "group": "2_Areas",
+      "type": "category"
+    },
+    {
+      "id": "category/3_Resources",
+      "label": "3 Resources",
+      "group": "3_Resources",
+      "type": "category"
+    },
+    {
+      "id": "category/4_Archives",
+      "label": "4 Archives",
+      "group": "4_Archives",
+      "type": "category"
+    },
+    {
+      "id": "tag/ai",
+      "label": "ai",
+      "group": "tags",
+      "type": "tag"
+    },
+    {
+      "id": "tag/anime",
+      "label": "anime",
+      "group": "tags",
+      "type": "tag"
+    },
+    {
+      "id": "tag/beginners",
+      "label": "beginners",
+      "group": "tags",
+      "type": "tag"
+    },
+    {
+      "id": "tag/career",
+      "label": "career",
+      "group": "tags",
+      "type": "tag"
+    },
+    {
+      "id": "tag/communication",
+      "label": "communication",
+      "group": "tags",
+      "type": "tag"
+    },
+    {
+      "id": "tag/development",
+      "label": "development",
+      "group": "tags",
+      "type": "tag"
+    },
+    {
+      "id": "tag/dsa",
+      "label": "dsa",
+      "group": "tags",
+      "type": "tag"
+    },
+    {
+      "id": "tag/emotions",
+      "label": "emotions",
+      "group": "tags",
+      "type": "tag"
+    },
+    {
+      "id": "tag/fantasy",
+      "label": "fantasy",
+      "group": "tags",
+      "type": "tag"
+    },
+    {
+      "id": "tag/fitness",
+      "label": "fitness",
+      "group": "tags",
+      "type": "tag"
+    },
+    {
+      "id": "tag/github",
+      "label": "github",
+      "group": "tags",
+      "type": "tag"
+    },
+    {
+      "id": "tag/gym",
+      "label": "gym",
+      "group": "tags",
+      "type": "tag"
+    },
+    {
+      "id": "tag/hackathon",
+      "label": "hackathon",
+      "group": "tags",
+      "type": "tag"
+    },
+    {
+      "id": "tag/healthcare",
+      "label": "healthcare",
+      "group": "tags",
+      "type": "tag"
+    },
+    {
+      "id": "tag/machine-learning",
+      "label": "machine-learning",
+      "group": "tags",
+      "type": "tag"
+    },
+    {
+      "id": "tag/mediroute",
+      "label": "mediroute",
+      "group": "tags",
+      "type": "tag"
+    },
+    {
+      "id": "tag/neural",
+      "label": "neural",
+      "group": "tags",
+      "type": "tag"
+    },
+    {
+      "id": "tag/novel",
+      "label": "novel",
+      "group": "tags",
+      "type": "tag"
+    },
+    {
+      "id": "tag/nvidia",
+      "label": "nvidia",
+      "group": "tags",
+      "type": "tag"
+    },
+    {
+      "id": "tag/projects",
+      "label": "projects",
+      "group": "tags",
+      "type": "tag"
+    },
+    {
+      "id": "tag/python",
+      "label": "python",
+      "group": "tags",
+      "type": "tag"
+    },
+    {
+      "id": "tag/reading",
+      "label": "reading",
+      "group": "tags",
+      "type": "tag"
+    },
+    {
+      "id": "tag/relationships",
+      "label": "relationships",
+      "group": "tags",
+      "type": "tag"
+    },
+    {
+      "id": "tag/romance",
+      "label": "romance",
+      "group": "tags",
+      "type": "tag"
+    },
+    {
+      "id": "tag/routine",
+      "label": "routine",
+      "group": "tags",
+      "type": "tag"
+    },
+    {
+      "id": "tag/schema",
+      "label": "schema",
+      "group": "tags",
+      "type": "tag"
+    },
+    {
+      "id": "tag/tensura",
+      "label": "tensura",
+      "group": "tags",
+      "type": "tag"
+    }
+  ],
+  "edges": [
+    {
+      "from": "1_Projects/ai_project_development",
+      "to": "category/1_Projects",
+      "type": "category",
+      "weight": 1.0
+    },
+    {
+      "from": "1_Projects/ai_project_development_1",
+      "to": "category/1_Projects",
+      "type": "category",
+      "weight": 1.0
+    },
+    {
+      "from": "1_Projects/ai_project_development_2",
+      "to": "category/1_Projects",
+      "type": "category",
+      "weight": 1.0
+    },
+    {
+      "from": "1_Projects/crunch_ai_neural_schema",
+      "to": "category/1_Projects",
+      "type": "category",
+      "weight": 1.0
+    },
+    {
+      "from": "1_Projects/crunch_ai_schema",
+      "to": "category/1_Projects",
+      "type": "category",
+      "weight": 1.0
+    },
+    {
+      "from": "1_Projects/crunch_ai_schema_1",
+      "to": "category/1_Projects",
+      "type": "category",
+      "weight": 1.0
+    },
+    {
+      "from": "1_Projects/mediroute_hackathon",
+      "to": "category/1_Projects",
+      "type": "category",
+      "weight": 1.0
+    },
+    {
+      "from": "1_Projects/mediroute_hackathon_1",
+      "to": "category/1_Projects",
+      "type": "category",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/expressing_genuine_care",
+      "to": "category/2_Areas",
+      "type": "category",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/expressing_genuine_care_1",
+      "to": "category/2_Areas",
+      "type": "category",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/expressing_genuine_care_2",
+      "to": "category/2_Areas",
+      "type": "category",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/gym_fitness_routine",
+      "to": "category/2_Areas",
+      "type": "category",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/gym_fitness_routine_1",
+      "to": "category/2_Areas",
+      "type": "category",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/gym_fitness_routine_2",
+      "to": "category/2_Areas",
+      "type": "category",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/nvidia_career_aspirations",
+      "to": "category/2_Areas",
+      "type": "category",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/nvidia_career_goal",
+      "to": "category/2_Areas",
+      "type": "category",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/nvidia_career_goal_1",
+      "to": "category/2_Areas",
+      "type": "category",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/nvidia_career_goal_2",
+      "to": "category/2_Areas",
+      "type": "category",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/python_career_development",
+      "to": "category/2_Areas",
+      "type": "category",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/python_dsa_career",
+      "to": "category/2_Areas",
+      "type": "category",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/python_dsa_career_1",
+      "to": "category/2_Areas",
+      "type": "category",
+      "weight": 1.0
+    },
+    {
+      "from": "3_Resources/ml_for_beginners",
+      "to": "category/3_Resources",
+      "type": "category",
+      "weight": 1.0
+    },
+    {
+      "from": "3_Resources/ml_for_beginners_1",
+      "to": "category/3_Resources",
+      "type": "category",
+      "weight": 1.0
+    },
+    {
+      "from": "3_Resources/ml_for_beginners_2",
+      "to": "category/3_Resources",
+      "type": "category",
+      "weight": 1.0
+    },
+    {
+      "from": "3_Resources/tensura_anime_notes",
+      "to": "category/3_Resources",
+      "type": "category",
+      "weight": 1.0
+    },
+    {
+      "from": "3_Resources/tensura_anime_notes_1",
+      "to": "category/3_Resources",
+      "type": "category",
+      "weight": 1.0
+    },
+    {
+      "from": "3_Resources/tensura_anime_notes_2",
+      "to": "category/3_Resources",
+      "type": "category",
+      "weight": 1.0
+    },
+    {
+      "from": "3_Resources/u_n_me_book_notes",
+      "to": "category/3_Resources",
+      "type": "category",
+      "weight": 1.0
+    },
+    {
+      "from": "3_Resources/u_n_me_book_notes_1",
+      "to": "category/3_Resources",
+      "type": "category",
+      "weight": 1.0
+    },
+    {
+      "from": "3_Resources/u_n_me_book_notes_2",
+      "to": "category/3_Resources",
+      "type": "category",
+      "weight": 1.0
+    },
+    {
+      "from": "4_Archives/mediroute_hackathon",
+      "to": "category/4_Archives",
+      "type": "category",
+      "weight": 1.0
+    },
+    {
+      "from": "1_Projects/ai_project_development",
+      "to": "tag/ai",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "1_Projects/ai_project_development",
+      "to": "tag/development",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "1_Projects/ai_project_development",
+      "to": "tag/projects",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "1_Projects/ai_project_development_1",
+      "to": "tag/ai",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "1_Projects/ai_project_development_1",
+      "to": "tag/development",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "1_Projects/ai_project_development_1",
+      "to": "tag/projects",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "1_Projects/ai_project_development_2",
+      "to": "tag/ai",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "1_Projects/ai_project_development_2",
+      "to": "tag/development",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "1_Projects/ai_project_development_2",
+      "to": "tag/projects",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "1_Projects/crunch_ai_neural_schema",
+      "to": "tag/neural",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "1_Projects/crunch_ai_neural_schema",
+      "to": "tag/schema",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "1_Projects/crunch_ai_neural_schema",
+      "to": "tag/ai",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "1_Projects/crunch_ai_schema",
+      "to": "tag/neural",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "1_Projects/crunch_ai_schema",
+      "to": "tag/schema",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "1_Projects/crunch_ai_schema",
+      "to": "tag/ai",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "1_Projects/crunch_ai_schema_1",
+      "to": "tag/neural",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "1_Projects/crunch_ai_schema_1",
+      "to": "tag/schema",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "1_Projects/crunch_ai_schema_1",
+      "to": "tag/ai",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "1_Projects/mediroute_hackathon",
+      "to": "tag/hackathon",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "1_Projects/mediroute_hackathon",
+      "to": "tag/mediroute",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "1_Projects/mediroute_hackathon",
+      "to": "tag/healthcare",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "1_Projects/mediroute_hackathon_1",
+      "to": "tag/hackathon",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "1_Projects/mediroute_hackathon_1",
+      "to": "tag/mediroute",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "1_Projects/mediroute_hackathon_1",
+      "to": "tag/healthcare",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/expressing_genuine_care",
+      "to": "tag/relationships",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/expressing_genuine_care",
+      "to": "tag/emotions",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/expressing_genuine_care",
+      "to": "tag/communication",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/expressing_genuine_care_1",
+      "to": "tag/relationships",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/expressing_genuine_care_1",
+      "to": "tag/emotions",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/expressing_genuine_care_1",
+      "to": "tag/communication",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/expressing_genuine_care_2",
+      "to": "tag/relationships",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/expressing_genuine_care_2",
+      "to": "tag/emotions",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/expressing_genuine_care_2",
+      "to": "tag/communication",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/gym_fitness_routine",
+      "to": "tag/fitness",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/gym_fitness_routine",
+      "to": "tag/gym",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/gym_fitness_routine",
+      "to": "tag/routine",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/gym_fitness_routine_1",
+      "to": "tag/fitness",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/gym_fitness_routine_1",
+      "to": "tag/gym",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/gym_fitness_routine_1",
+      "to": "tag/routine",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/gym_fitness_routine_2",
+      "to": "tag/fitness",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/gym_fitness_routine_2",
+      "to": "tag/gym",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/gym_fitness_routine_2",
+      "to": "tag/routine",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/nvidia_career_aspirations",
+      "to": "tag/career",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/nvidia_career_aspirations",
+      "to": "tag/nvidia",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/nvidia_career_aspirations",
+      "to": "tag/ai",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/nvidia_career_goal",
+      "to": "tag/career",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/nvidia_career_goal",
+      "to": "tag/nvidia",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/nvidia_career_goal",
+      "to": "tag/ai",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/nvidia_career_goal_1",
+      "to": "tag/career",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/nvidia_career_goal_1",
+      "to": "tag/nvidia",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/nvidia_career_goal_1",
+      "to": "tag/ai",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/nvidia_career_goal_2",
+      "to": "tag/career",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/nvidia_career_goal_2",
+      "to": "tag/nvidia",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/nvidia_career_goal_2",
+      "to": "tag/ai",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/python_career_development",
+      "to": "tag/python",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/python_career_development",
+      "to": "tag/dsa",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/python_career_development",
+      "to": "tag/career",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/python_dsa_career",
+      "to": "tag/python",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/python_dsa_career",
+      "to": "tag/dsa",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/python_dsa_career",
+      "to": "tag/career",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/python_dsa_career_1",
+      "to": "tag/python",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/python_dsa_career_1",
+      "to": "tag/dsa",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/python_dsa_career_1",
+      "to": "tag/career",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "3_Resources/ml_for_beginners",
+      "to": "tag/machine-learning",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "3_Resources/ml_for_beginners",
+      "to": "tag/beginners",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "3_Resources/ml_for_beginners",
+      "to": "tag/github",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "3_Resources/ml_for_beginners_1",
+      "to": "tag/machine-learning",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "3_Resources/ml_for_beginners_1",
+      "to": "tag/github",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "3_Resources/ml_for_beginners_1",
+      "to": "tag/beginners",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "3_Resources/ml_for_beginners_2",
+      "to": "tag/machine-learning",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "3_Resources/ml_for_beginners_2",
+      "to": "tag/beginners",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "3_Resources/ml_for_beginners_2",
+      "to": "tag/github",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "3_Resources/tensura_anime_notes",
+      "to": "tag/anime",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "3_Resources/tensura_anime_notes",
+      "to": "tag/tensura",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "3_Resources/tensura_anime_notes",
+      "to": "tag/fantasy",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "3_Resources/tensura_anime_notes_1",
+      "to": "tag/anime",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "3_Resources/tensura_anime_notes_1",
+      "to": "tag/tensura",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "3_Resources/tensura_anime_notes_1",
+      "to": "tag/fantasy",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "3_Resources/tensura_anime_notes_2",
+      "to": "tag/anime",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "3_Resources/tensura_anime_notes_2",
+      "to": "tag/tensura",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "3_Resources/tensura_anime_notes_2",
+      "to": "tag/fantasy",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "3_Resources/u_n_me_book_notes",
+      "to": "tag/romance",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "3_Resources/u_n_me_book_notes",
+      "to": "tag/novel",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "3_Resources/u_n_me_book_notes",
+      "to": "tag/reading",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "3_Resources/u_n_me_book_notes_1",
+      "to": "tag/romance",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "3_Resources/u_n_me_book_notes_1",
+      "to": "tag/novel",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "3_Resources/u_n_me_book_notes_1",
+      "to": "tag/reading",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "3_Resources/u_n_me_book_notes_2",
+      "to": "tag/romance",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "3_Resources/u_n_me_book_notes_2",
+      "to": "tag/novel",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "3_Resources/u_n_me_book_notes_2",
+      "to": "tag/reading",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "4_Archives/mediroute_hackathon",
+      "to": "tag/hackathon",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "4_Archives/mediroute_hackathon",
+      "to": "tag/mediroute",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "4_Archives/mediroute_hackathon",
+      "to": "tag/healthcare",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "1_Projects/ai_project_development",
+      "to": "1_Projects/ai_project_development_2",
+      "type": "explicit",
+      "weight": 1.0
+    },
+    {
+      "from": "1_Projects/ai_project_development_1",
+      "to": "1_Projects/ai_project_development_2",
+      "type": "explicit",
+      "weight": 1.0
+    },
+    {
+      "from": "1_Projects/crunch_ai_neural_schema",
+      "to": "1_Projects/crunch_ai_schema_1",
+      "type": "explicit",
+      "weight": 1.0
+    },
+    {
+      "from": "1_Projects/crunch_ai_schema",
+      "to": "1_Projects/crunch_ai_neural_schema",
+      "type": "explicit",
+      "weight": 1.0
+    },
+    {
+      "from": "1_Projects/crunch_ai_schema",
+      "to": "1_Projects/crunch_ai_schema_1",
+      "type": "explicit",
+      "weight": 1.0
+    },
+    {
+      "from": "1_Projects/mediroute_hackathon",
+      "to": "4_Archives/mediroute_hackathon",
+      "type": "explicit",
+      "weight": 1.0
+    },
+    {
+      "from": "1_Projects/mediroute_hackathon_1",
+      "to": "4_Archives/mediroute_hackathon",
+      "type": "explicit",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/expressing_genuine_care",
+      "to": "2_Areas/expressing_genuine_care_2",
+      "type": "explicit",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/expressing_genuine_care_1",
+      "to": "2_Areas/expressing_genuine_care_2",
+      "type": "explicit",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/gym_fitness_routine",
+      "to": "2_Areas/gym_fitness_routine_2",
+      "type": "explicit",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/gym_fitness_routine_1",
+      "to": "2_Areas/gym_fitness_routine_2",
+      "type": "explicit",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/nvidia_career_aspirations",
+      "to": "2_Areas/nvidia_career_goal_2",
+      "type": "explicit",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/nvidia_career_goal",
+      "to": "2_Areas/nvidia_career_aspirations",
+      "type": "explicit",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/nvidia_career_goal",
+      "to": "2_Areas/nvidia_career_goal_2",
+      "type": "explicit",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/nvidia_career_goal_1",
+      "to": "2_Areas/nvidia_career_aspirations",
+      "type": "explicit",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/nvidia_career_goal_1",
+      "to": "2_Areas/nvidia_career_goal_2",
+      "type": "explicit",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/python_career_development",
+      "to": "2_Areas/python_dsa_career_1",
+      "type": "explicit",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/python_dsa_career",
+      "to": "2_Areas/python_career_development",
+      "type": "explicit",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/python_dsa_career",
+      "to": "2_Areas/python_dsa_career_1",
+      "type": "explicit",
+      "weight": 1.0
+    },
+    {
+      "from": "3_Resources/ml_for_beginners",
+      "to": "3_Resources/ml_for_beginners_2",
+      "type": "explicit",
+      "weight": 1.0
+    },
+    {
+      "from": "3_Resources/ml_for_beginners_1",
+      "to": "3_Resources/ml_for_beginners_2",
+      "type": "explicit",
+      "weight": 1.0
+    },
+    {
+      "from": "3_Resources/tensura_anime_notes",
+      "to": "3_Resources/tensura_anime_notes_2",
+      "type": "explicit",
+      "weight": 1.0
+    },
+    {
+      "from": "3_Resources/tensura_anime_notes_1",
+      "to": "3_Resources/tensura_anime_notes_2",
+      "type": "explicit",
+      "weight": 1.0
+    },
+    {
+      "from": "3_Resources/u_n_me_book_notes",
+      "to": "3_Resources/u_n_me_book_notes_2",
+      "type": "explicit",
+      "weight": 1.0
+    },
+    {
+      "from": "3_Resources/u_n_me_book_notes_1",
+      "to": "3_Resources/u_n_me_book_notes_2",
+      "type": "explicit",
+      "weight": 1.0
+    },
+    {
+      "from": "1_Projects/ai_project_development",
+      "to": "1_Projects/ai_project_development_1",
+      "type": "semantic",
+      "weight": 1.0
+    },
+    {
+      "from": "1_Projects/ai_project_development",
+      "to": "1_Projects/ai_project_development_2",
+      "type": "semantic",
+      "weight": 1.0
+    },
+    {
+      "from": "1_Projects/ai_project_development_1",
+      "to": "1_Projects/ai_project_development_2",
+      "type": "semantic",
+      "weight": 1.0
+    },
+    {
+      "from": "1_Projects/crunch_ai_neural_schema",
+      "to": "1_Projects/crunch_ai_schema",
+      "type": "semantic",
+      "weight": 0.9917
+    },
+    {
+      "from": "1_Projects/crunch_ai_neural_schema",
+      "to": "1_Projects/crunch_ai_schema_1",
+      "type": "semantic",
+      "weight": 0.9848
+    },
+    {
+      "from": "1_Projects/crunch_ai_schema",
+      "to": "1_Projects/crunch_ai_schema_1",
+      "type": "semantic",
+      "weight": 0.9866
+    },
+    {
+      "from": "1_Projects/mediroute_hackathon",
+      "to": "1_Projects/mediroute_hackathon_1",
+      "type": "semantic",
+      "weight": 1.0
+    },
+    {
+      "from": "1_Projects/mediroute_hackathon",
+      "to": "4_Archives/mediroute_hackathon",
+      "type": "semantic",
+      "weight": 1.0
+    },
+    {
+      "from": "1_Projects/mediroute_hackathon_1",
+      "to": "4_Archives/mediroute_hackathon",
+      "type": "semantic",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/expressing_genuine_care",
+      "to": "2_Areas/expressing_genuine_care_1",
+      "type": "semantic",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/expressing_genuine_care",
+      "to": "2_Areas/expressing_genuine_care_2",
+      "type": "semantic",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/expressing_genuine_care_1",
+      "to": "2_Areas/expressing_genuine_care_2",
+      "type": "semantic",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/gym_fitness_routine",
+      "to": "2_Areas/gym_fitness_routine_1",
+      "type": "semantic",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/gym_fitness_routine",
+      "to": "2_Areas/gym_fitness_routine_2",
+      "type": "semantic",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/gym_fitness_routine_1",
+      "to": "2_Areas/gym_fitness_routine_2",
+      "type": "semantic",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/nvidia_career_aspirations",
+      "to": "2_Areas/nvidia_career_goal",
+      "type": "semantic",
+      "weight": 0.9583
+    },
+    {
+      "from": "2_Areas/nvidia_career_aspirations",
+      "to": "2_Areas/nvidia_career_goal_1",
+      "type": "semantic",
+      "weight": 0.9583
+    },
+    {
+      "from": "2_Areas/nvidia_career_aspirations",
+      "to": "2_Areas/nvidia_career_goal_2",
+      "type": "semantic",
+      "weight": 0.9583
+    },
+    {
+      "from": "2_Areas/nvidia_career_goal",
+      "to": "2_Areas/nvidia_career_goal_1",
+      "type": "semantic",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/nvidia_career_goal",
+      "to": "2_Areas/nvidia_career_goal_2",
+      "type": "semantic",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/nvidia_career_goal_1",
+      "to": "2_Areas/nvidia_career_goal_2",
+      "type": "semantic",
+      "weight": 1.0
+    },
+    {
+      "from": "2_Areas/python_career_development",
+      "to": "2_Areas/python_dsa_career",
+      "type": "semantic",
+      "weight": 0.9006
+    },
+    {
+      "from": "2_Areas/python_career_development",
+      "to": "2_Areas/python_dsa_career_1",
+      "type": "semantic",
+      "weight": 0.8753
+    },
+    {
+      "from": "2_Areas/python_dsa_career",
+      "to": "2_Areas/python_dsa_career_1",
+      "type": "semantic",
+      "weight": 0.9683
+    },
+    {
+      "from": "3_Resources/ml_for_beginners",
+      "to": "3_Resources/ml_for_beginners_1",
+      "type": "semantic",
+      "weight": 1.0
+    },
+    {
+      "from": "3_Resources/ml_for_beginners",
+      "to": "3_Resources/ml_for_beginners_2",
+      "type": "semantic",
+      "weight": 0.9941
+    },
+    {
+      "from": "3_Resources/ml_for_beginners_1",
+      "to": "3_Resources/ml_for_beginners_2",
+      "type": "semantic",
+      "weight": 0.9941
+    },
+    {
+      "from": "3_Resources/tensura_anime_notes",
+      "to": "3_Resources/tensura_anime_notes_1",
+      "type": "semantic",
+      "weight": 0.9951
+    },
+    {
+      "from": "3_Resources/tensura_anime_notes",
+      "to": "3_Resources/tensura_anime_notes_2",
+      "type": "semantic",
+      "weight": 0.9951
+    },
+    {
+      "from": "3_Resources/tensura_anime_notes_1",
+      "to": "3_Resources/tensura_anime_notes_2",
+      "type": "semantic",
+      "weight": 1.0
+    },
+    {
+      "from": "3_Resources/u_n_me_book_notes",
+      "to": "3_Resources/u_n_me_book_notes_1",
+      "type": "semantic",
+      "weight": 1.0
+    },
+    {
+      "from": "3_Resources/u_n_me_book_notes",
+      "to": "3_Resources/u_n_me_book_notes_2",
+      "type": "semantic",
+      "weight": 1.0
+    },
+    {
+      "from": "3_Resources/u_n_me_book_notes_1",
+      "to": "3_Resources/u_n_me_book_notes_2",
+      "type": "semantic",
+      "weight": 1.0
+    }
+  ]
+};
+
+        // Populate statistics
+        document.getElementById('stat-nodes').innerText = rawData.metadata.total_nodes;
+        document.getElementById('stat-notes').innerText = rawData.metadata.node_counts.notes;
+        document.getElementById('stat-cats').innerText = rawData.metadata.node_counts.categories;
+        document.getElementById('stat-tags').innerText = rawData.metadata.node_counts.tags;
+        document.getElementById('stat-edges').innerText = rawData.metadata.total_edges;
+
+        const categoryColors = {
+            '1_Projects': '#3b82f6',
+            '2_Areas': '#10b981',
+            '3_Resources': '#f59e0b',
+            '4_Archives': '#64748b'
+        };
+
+        // Process Vis-Network Nodes
+        const nodesArray = rawData.nodes.map(n => {
+            let nodeObj = {
+                id: n.id,
+                label: n.label,
+                title: `<div style="font-weight:600; font-size:0.95rem; margin-bottom:4px; color:#38bdf8;">${n.label}</div>
+                        <div style="font-size:0.75rem; color:#94a3b8; margin-bottom:6px;">Group: ${n.group} | Type: ${n.type}</div>
+                        ${n.summary ? `<div style="font-size:0.8rem; margin-bottom:6px;">${n.summary}</div>` : ''}
+                        ${n.tags && n.tags.length ? `<div style="font-size:0.72rem; color:#a855f7;">Tags: ${n.tags.join(', ')}</div>` : ''}`
+            };
+
+            if (n.type === 'note') {
+                const color = categoryColors[n.group] || '#3b82f6';
+                nodeObj.color = {
+                    background: color,
+                    border: '#ffffff',
+                    highlight: { background: '#38bdf8', border: '#ffffff' }
+                };
+                nodeObj.shape = 'dot';
+                nodeObj.size = 20 + Math.min(n.word_count / 10, 15);
+                nodeObj.font = { color: '#f8fafc', size: 12, face: 'Inter' };
+            } else if (n.type === 'category') {
+                nodeObj.color = {
+                    background: '#ec4899',
+                    border: '#f472b6',
+                    highlight: { background: '#f472b6', border: '#ffffff' }
+                };
+                nodeObj.shape = 'diamond';
+                nodeObj.size = 30;
+                nodeObj.font = { color: '#f472b6', size: 14, weight: 'bold', face: 'Inter' };
+            } else if (n.type === 'tag') {
+                nodeObj.color = {
+                    background: '#a855f7',
+                    border: '#c084fc',
+                    highlight: { background: '#c084fc', border: '#ffffff' }
+                };
+                nodeObj.shape = 'dot';
+                nodeObj.size = 12;
+                nodeObj.font = { color: '#c084fc', size: 11, face: 'Inter' };
+            }
+
+            return nodeObj;
+        });
+
+        // Process Vis-Network Edges
+        const edgesArray = rawData.edges.map(e => {
+            let edgeObj = {
+                from: e.from,
+                to: e.to,
+                width: 1
+            };
+
+            if (e.type === 'explicit') {
+                edgeObj.color = { color: '#38bdf8', highlight: '#7dd3fc' };
+                edgeObj.width = 2.5;
+                edgeObj.title = 'Wikilink';
+            } else if (e.type === 'semantic') {
+                edgeObj.color = { color: '#22c55e', highlight: '#4ade80' };
+                edgeObj.width = 2;
+                edgeObj.dashes = [4, 4];
+                edgeObj.title = `Similarity: ${e.weight}`;
+            } else if (e.type === 'category') {
+                edgeObj.color = { color: 'rgba(236, 72, 153, 0.3)', highlight: '#ec4899' };
+                edgeObj.width = 1;
+            } else if (e.type === 'tag') {
+                edgeObj.color = { color: 'rgba(168, 85, 247, 0.25)', highlight: '#a855f7' };
+                edgeObj.width = 1;
+            }
+
+            return edgeObj;
+        });
+
+        const container = document.getElementById('mynetwork');
+        const data = {
+            nodes: new vis.DataSet(nodesArray),
+            edges: new vis.DataSet(edgesArray)
+        };
+
+        const options = {
+            nodes: {
+                borderWidth: 1.5,
+                shadow: true
+            },
+            edges: {
+                smooth: {
+                    type: 'continuous',
+                    forceDirection: 'none'
+                }
+            },
+            physics: {
+                solver: 'barnesHut',
+                barnesHut: {
+                    gravitationalConstant: -3000,
+                    centralGravity: 0.3,
+                    springLength: 95,
+                    springConstant: 0.04,
+                    damping: 0.09
+                },
+                stabilization: {
+                    enabled: true,
+                    iterations: 150
+                }
+            },
+            interaction: {
+                hover: true,
+                tooltipDelay: 100,
+                zoomView: true,
+                dragView: true
+            }
+        };
+
+        const network = new vis.Network(container, data, options);
+
+        let physicsEnabled = true;
+        function togglePhysics() {
+            physicsEnabled = !physicsEnabled;
+            network.setOptions({ physics: { enabled: physicsEnabled } });
+            document.getElementById('physics-btn').innerText = physicsEnabled ? 'Pause Physics' : 'Resume Physics';
+        }
+
+        function resetView() {
+            network.fit({ animation: { duration: 500, easingFunction: 'easeInOutQuad' } });
+        }
+
+        function searchNodes() {
+            const query = document.getElementById('search-input').value.toLowerCase().trim();
+            if (!query) return;
+
+            const matches = nodesArray.filter(n => n.label.toLowerCase().includes(query));
+            if (matches.length > 0) {
+                network.selectNodes([matches[0].id]);
+                network.focus(matches[0].id, { scale: 1.2, animation: { duration: 500 } });
+            }
+        }
+    </script>
+</body>
+</html>
