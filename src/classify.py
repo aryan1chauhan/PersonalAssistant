@@ -31,14 +31,16 @@ load_dotenv()
 # Force UTF-8 stdout on Windows to prevent cp1252 encoding errors with Rich.
 # Only applied during direct CLI execution, not when imported by pytest.
 def _fix_windows_encoding():
-    if sys.platform == "win32" and hasattr(sys.stdout, "buffer"):
-        import io
+    if sys.platform == "win32":
         try:
-            sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
-            sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
+            if getattr(sys.stdout, "encoding", "").lower() != "utf-8":
+                import io
+                sys.stdout = io.TextIOWrapper(getattr(sys.stdout, "buffer", sys.stdout), encoding="utf-8", errors="replace")
+                sys.stderr = io.TextIOWrapper(getattr(sys.stderr, "buffer", sys.stderr), encoding="utf-8", errors="replace")
         except Exception:
             pass
 
+_fix_windows_encoding()
 console = Console()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -383,6 +385,26 @@ def classify_raw_item(
 # Wiki note writer
 # ---------------------------------------------------------------------------
 
+def find_note_by_id(raw_id: str, wiki_dir: Optional[Path] = None) -> Optional[Path]:
+    """Scan wiki notes for an existing note matching the raw record ID."""
+    if not raw_id:
+        return None
+    target_wiki = wiki_dir or WIKI_DIR
+    for category in PARA_CATEGORIES:
+        cat_dir = target_wiki / category
+        if not cat_dir.exists():
+            continue
+        for md_file in cat_dir.glob("*.md"):
+            try:
+                text = md_file.read_text(encoding="utf-8")
+                match = re.search(r'^id:\s*"([^"]+)"', text, re.MULTILINE)
+                if match and match.group(1) == raw_id:
+                    return md_file
+            except Exception:
+                continue
+    return None
+
+
 def write_wiki_note(
     raw_record: Dict[str, Any],
     classification: Dict[str, Any],
@@ -390,22 +412,48 @@ def write_wiki_note(
 ) -> Path:
     """
     Write a classified Markdown note with YAML frontmatter to wiki/{category}/{slug}.md.
+    If a note with the same raw record ID already exists in wiki/, update/overwrite it
+    (removing the old file if category changed) instead of creating duplicate _1, _2 files.
     Returns the Path of the created file.
     """
     target_wiki = wiki_dir or WIKI_DIR
     category = classification["category"]
     category_dir = target_wiki / category
     category_dir.mkdir(parents=True, exist_ok=True)
+    raw_id = raw_record.get("id", "")
 
-    # Build unique slug
-    slug_base = slugify(classification["title"])
-    slug_path = category_dir / f"{slug_base}.md"
+    # Check if a note for this exact raw capture ID already exists
+    existing_note_path = find_note_by_id(raw_id, target_wiki) if raw_id else None
+    title = classification["title"]
 
-    # Handle slug collisions by appending a numeric suffix
-    counter = 1
-    while slug_path.exists():
-        slug_path = category_dir / f"{slug_base}_{counter}.md"
-        counter += 1
+    if existing_note_path:
+        if existing_note_path.parent.name == category:
+            # Overwrite at current path for the same raw item ID
+            slug_path = existing_note_path
+        else:
+            # Category changed: remove old file and compute new target path
+            slug_base = slugify(title)
+            slug_path = category_dir / f"{slug_base}.md"
+            counter = 1
+            while slug_path.exists() and slug_path != existing_note_path:
+                slug_path = category_dir / f"{slug_base}_{counter}.md"
+                counter += 1
+            try:
+                existing_note_path.unlink()
+            except Exception:
+                pass
+    else:
+        # New capture ID: handle slug collisions with other distinct notes
+        slug_base = slugify(title)
+        slug_path = category_dir / f"{slug_base}.md"
+        counter = 1
+        original_title = title
+        while slug_path.exists():
+            counter += 1
+            title = f"{original_title} ({counter})"
+            slug_base_new = slugify(title)
+            slug_path = category_dir / f"{slug_base_new}.md"
+        classification["title"] = title
 
     # Format YAML frontmatter
     tags_yaml = "\n".join(f"  - {tag}" for tag in classification["tags"])
@@ -598,7 +646,7 @@ def batch_classify(
     if created_paths:
         console.print(results_table)
     console.print(
-        f"\n[bold green]✓ Classified {len(created_paths)} items[/bold green]"
+        f"\n[bold green][OK] Classified {len(created_paths)} items[/bold green]"
         f" | [dim]{skipped} skipped (already classified)[/dim]"
         f" | [dim]{len(raw_files) - len(created_paths) - skipped} errors[/dim]"
     )

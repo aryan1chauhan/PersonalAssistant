@@ -322,6 +322,8 @@ class TestWriteWikiNote:
         assert "Original File" in content
 
     def test_slug_collision_resolved(self, tmp_path, sample_note_record):
+        rec1 = dict(sample_note_record, id="raw_id_coll_1")
+        rec2 = dict(sample_note_record, id="raw_id_coll_2")
         classification = {
             "category": "3_Resources",
             "tags": ["test"],
@@ -329,8 +331,8 @@ class TestWriteWikiNote:
             "title": "Same Title",
             "provider": "rule",
         }
-        path1 = write_wiki_note(sample_note_record, classification, wiki_dir=tmp_path)
-        path2 = write_wiki_note(sample_note_record, classification, wiki_dir=tmp_path)
+        path1 = write_wiki_note(rec1, classification, wiki_dir=tmp_path)
+        path2 = write_wiki_note(rec2, classification, wiki_dir=tmp_path)
         assert path1 != path2
         assert path1.exists()
         assert path2.exists()
@@ -479,3 +481,91 @@ class TestGetClassifiedIds:
             (wiki_dir / cat).mkdir(parents=True)
         ids = _get_classified_ids(wiki_dir)
         assert len(ids) == 0
+
+
+# ---------------------------------------------------------------------------
+# Deduplication and Collision Handling Tests
+# ---------------------------------------------------------------------------
+
+class TestDeduplicationAndCollision:
+    def test_find_note_by_id(self, tmp_path):
+        from src.classify import find_note_by_id
+        wiki_dir = tmp_path / "wiki"
+        cat_dir = wiki_dir / "1_Projects"
+        cat_dir.mkdir(parents=True)
+        note_file = cat_dir / "my_project.md"
+        note_file.write_text('---\nid: "raw_find_me_123"\ntitle: "My Project"\n---\nBody', encoding="utf-8")
+
+        found = find_note_by_id("raw_find_me_123", wiki_dir=wiki_dir)
+        assert found == note_file
+        assert find_note_by_id("nonexistent_id", wiki_dir=wiki_dir) is None
+
+    def test_reclassify_same_id_overwrites_existing_file(self, tmp_path, sample_note_record):
+        """Re-classifying the same raw capture ID must overwrite the existing file, NOT create _1.md."""
+        wiki_dir = tmp_path / "wiki"
+
+        classification1 = {
+            "category": "3_Resources",
+            "tags": ["initial"],
+            "summary": "First version summary",
+            "title": "CODE Framework Summary",
+            "provider": "rule",
+        }
+        path1 = write_wiki_note(sample_note_record, classification1, wiki_dir=wiki_dir)
+        assert path1.name == "code_framework_summary.md"
+
+        # Re-classify with updated metadata
+        classification2 = {
+            "category": "3_Resources",
+            "tags": ["updated"],
+            "summary": "Second version summary",
+            "title": "CODE Framework Summary",
+            "provider": "rule",
+        }
+        path2 = write_wiki_note(sample_note_record, classification2, wiki_dir=wiki_dir)
+        assert path2 == path1
+        assert path1.exists()
+        # Verify no _1.md was created
+        assert not (path1.parent / "code_framework_summary_1.md").exists()
+        # Verify file content was updated
+        content = path2.read_text(encoding="utf-8")
+        assert "Second version summary" in content
+
+    def test_reclassify_category_change_removes_old_file(self, tmp_path, sample_note_record):
+        """When re-classification changes a note's category, the old file must be deleted."""
+        wiki_dir = tmp_path / "wiki"
+
+        # First classification -> 3_Resources
+        class1 = {"category": "3_Resources", "tags": ["res"], "summary": "Sum", "title": "Move Note", "provider": "rule"}
+        old_path = write_wiki_note(sample_note_record, class1, wiki_dir=wiki_dir)
+        assert old_path.exists()
+        assert "3_Resources" in str(old_path)
+
+        # Second classification -> 4_Archives (category move)
+        class2 = {"category": "4_Archives", "tags": ["arch"], "summary": "Sum", "title": "Move Note", "provider": "rule"}
+        new_path = write_wiki_note(sample_note_record, class2, wiki_dir=wiki_dir)
+
+        assert new_path.exists()
+        assert "4_Archives" in str(new_path)
+        # Old path in 3_Resources must be removed
+        assert not old_path.exists()
+
+    def test_slug_collision_different_id_disambiguates_title(self, tmp_path, sample_note_record):
+        """Collisions between DIFFERENT raw capture IDs must disambiguate both title and filename."""
+        wiki_dir = tmp_path / "wiki"
+
+        rec1 = dict(sample_note_record, id="raw_id_001")
+        class1 = {"category": "1_Projects", "tags": ["p1"], "summary": "S1", "title": "Project Alpha", "provider": "rule"}
+        path1 = write_wiki_note(rec1, class1, wiki_dir=wiki_dir)
+        assert path1.name == "project_alpha.md"
+
+        rec2 = dict(sample_note_record, id="raw_id_002")
+        class2 = {"category": "1_Projects", "tags": ["p2"], "summary": "S2", "title": "Project Alpha", "provider": "rule"}
+        path2 = write_wiki_note(rec2, class2, wiki_dir=wiki_dir)
+
+        assert path2.name == "project_alpha_2.md"
+        assert path1.exists()
+        assert path2.exists()
+        # Verify title in second note frontmatter was disambiguated
+        content2 = path2.read_text(encoding="utf-8")
+        assert 'title: "Project Alpha (2)"' in content2

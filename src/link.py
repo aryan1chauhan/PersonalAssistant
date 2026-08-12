@@ -27,14 +27,16 @@ load_dotenv()
 
 # Force UTF-8 stdout on Windows to prevent cp1252 encoding errors with Rich.
 def _fix_windows_encoding():
-    if sys.platform == "win32" and hasattr(sys.stdout, "buffer"):
-        import io
+    if sys.platform == "win32":
         try:
-            sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
-            sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
+            if getattr(sys.stdout, "encoding", "").lower() != "utf-8":
+                import io
+                sys.stdout = io.TextIOWrapper(getattr(sys.stdout, "buffer", sys.stdout), encoding="utf-8", errors="replace")
+                sys.stderr = io.TextIOWrapper(getattr(sys.stderr, "buffer", sys.stderr), encoding="utf-8", errors="replace")
         except Exception:
             pass
 
+_fix_windows_encoding()
 console = Console()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -519,7 +521,7 @@ def run_auto_linking(
     total_link_pairs = sum(len(targets) for targets in link_map.values())
     console.print(
         f"  Found [cyan]{total_link_pairs}[/cyan] directed link pairs "
-        f"(threshold ≥ {sim_threshold})."
+        f"(threshold >= {sim_threshold})."
     )
 
     # Step 5: Inject wikilinks
@@ -528,7 +530,7 @@ def run_auto_linking(
 
     # Summary
     console.print()
-    console.print(f"[bold green]✓ Auto-linking complete![/bold green]")
+    console.print(f"[bold green][OK] Auto-linking complete![/bold green]")
     console.print(f"  Notes scanned:    {len(notes)}")
     console.print(f"  Notes linked:     {modified}")
     console.print(f"  Link pairs found: {total_link_pairs}")
@@ -539,7 +541,7 @@ def run_auto_linking(
     if total_link_pairs > 0:
         link_table = Table(title="Auto-Linked Note Pairs", show_lines=True)
         link_table.add_column("Source Note", style="cyan", max_width=35)
-        link_table.add_column("→ Related Note", style="white", max_width=35)
+        link_table.add_column("-> Related Note", style="white", max_width=35)
         link_table.add_column("Similarity", style="green", max_width=10)
 
         for i, targets in link_map.items():
@@ -636,7 +638,7 @@ def clear_cmd():
     """Remove all auto-generated Related Knowledge sections."""
     console.print("\n[bold yellow]Clearing all Related Knowledge sections...[/bold yellow]")
     count = clear_all_related_sections()
-    console.print(f"[bold green]✓ Cleared {count} notes.[/bold green]\n")
+    console.print(f"[bold green][OK] Cleared {count} notes.[/bold green]\n")
 
 
 @main.command("show")

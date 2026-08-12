@@ -38,14 +38,16 @@ load_dotenv()
 
 # Force UTF-8 stdout on Windows to prevent cp1252 encoding errors with Rich.
 def _fix_windows_encoding():
-    if sys.platform == "win32" and hasattr(sys.stdout, "buffer"):
-        import io
+    if sys.platform == "win32":
         try:
-            sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
-            sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
+            if getattr(sys.stdout, "encoding", "").lower() != "utf-8":
+                import io
+                sys.stdout = io.TextIOWrapper(getattr(sys.stdout, "buffer", sys.stdout), encoding="utf-8", errors="replace")
+                sys.stderr = io.TextIOWrapper(getattr(sys.stderr, "buffer", sys.stderr), encoding="utf-8", errors="replace")
         except Exception:
             pass
 
+_fix_windows_encoding()
 console = Console()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -779,7 +781,7 @@ def run_cmd(output: Optional[str], threshold: Optional[float]):
     html_path = export_graph_html(graph)
     console.print(f"  Saved to [cyan]{html_path}[/cyan]")
 
-    console.print(f"\n[bold green]✓ Knowledge graph and HTML visualizer exported successfully![/bold green]\n")
+    console.print(f"\n[bold green][OK] Knowledge graph and HTML visualizer exported successfully![/bold green]\n")
 
 
 @main.command("status")

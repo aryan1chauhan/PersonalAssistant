@@ -128,19 +128,19 @@ Convert `wiki/` notes into a node-edge graph data model exportable as `graph.jso
 Wire up natural language retrieval-augmented search over personal notes and package the full system into a single deployable Streamlit dashboard.
 
 ### Tasks
-- [ ] **Phase 5.1: Retrieval-Augmented Q&A Engine (`src/ask.py`)**:
+- [x] **Phase 5.1: Retrieval-Augmented Q&A Engine (`src/ask.py`)**:
   - Embed user natural language question.
   - Perform vector search across notes to retrieve top $k=3..5$ matching context passages.
   - Pass context + question to LLM synthesizer with instructions to provide grounded answers with source file citations.
-- [ ] **Phase 5.2: Streamlit Dashboard (`app.py`)**:
+- [x] **Phase 5.2: Streamlit Dashboard (`app.py`)**:
   - Tab 1: **Living Brain Visualizer** (embedded vis-network graph).
   - Tab 2: **Ask Your Brain** (search bar, streaming response, citation drawer).
   - Tab 3: **Quick Capture** (text note, URL link, file upload interface).
 
 ### Verification
 - Acceptance Criteria:
-  - [ ] `ask()` returns answers synthesized from your own notes (retrieval + LLM).
-  - [ ] One Streamlit app contains both the graph and the search bar.
+  - [x] `ask()` returns answers synthesized from your own notes (retrieval + LLM).
+  - [x] One Streamlit app contains both the graph and the search bar.
   - [ ] Deployed live with a public URL.
   - [ ] Full pipeline works end-to-end in the deployed app.
 - 🏅 **Badge**: The Oracle

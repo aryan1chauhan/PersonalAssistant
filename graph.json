@@ -1,18 +1,18 @@
 {
   "metadata": {
-    "generated_at": "2026-08-12T01:54:57.249038+05:30",
-    "total_nodes": 62,
-    "total_edges": 182,
+    "generated_at": "2026-08-13T03:26:02.206083+05:30",
+    "total_nodes": 48,
+    "total_edges": 48,
     "node_counts": {
-      "notes": 31,
-      "categories": 4,
-      "tags": 27
+      "notes": 12,
+      "categories": 3,
+      "tags": 33
     },
     "edge_counts": {
-      "category": 31,
-      "tag": 93,
-      "explicit": 25,
-      "semantic": 33
+      "category": 12,
+      "tag": 36,
+      "explicit": 0,
+      "semantic": 0
     }
   },
   "nodes": [
@@ -31,48 +31,6 @@
       "file_path": "D:\\PersonalAssistant\\wiki\\1_Projects\\ai_project_development.md"
     },
     {
-      "id": "1_Projects/ai_project_development_1",
-      "label": "AI Project Development",
-      "group": "1_Projects",
-      "type": "note",
-      "summary": "Developing AI projects",
-      "tags": [
-        "ai",
-        "development",
-        "projects"
-      ],
-      "word_count": 28,
-      "file_path": "D:\\PersonalAssistant\\wiki\\1_Projects\\ai_project_development_1.md"
-    },
-    {
-      "id": "1_Projects/ai_project_development_2",
-      "label": "AI Project Development",
-      "group": "1_Projects",
-      "type": "note",
-      "summary": "Developing AI projects",
-      "tags": [
-        "ai",
-        "development",
-        "projects"
-      ],
-      "word_count": 28,
-      "file_path": "D:\\PersonalAssistant\\wiki\\1_Projects\\ai_project_development_2.md"
-    },
-    {
-      "id": "1_Projects/crunch_ai_neural_schema",
-      "label": "Crunch AI Neural Schema",
-      "group": "1_Projects",
-      "type": "note",
-      "summary": "Neural schema for Crunch AI",
-      "tags": [
-        "neural",
-        "schema",
-        "ai"
-      ],
-      "word_count": 30,
-      "file_path": "D:\\PersonalAssistant\\wiki\\1_Projects\\crunch_ai_neural_schema.md"
-    },
-    {
       "id": "1_Projects/crunch_ai_schema",
       "label": "Crunch AI Schema",
       "group": "1_Projects",
@@ -85,20 +43,6 @@
       ],
       "word_count": 28,
       "file_path": "D:\\PersonalAssistant\\wiki\\1_Projects\\crunch_ai_schema.md"
-    },
-    {
-      "id": "1_Projects/crunch_ai_schema_1",
-      "label": "Crunch AI Schema",
-      "group": "1_Projects",
-      "type": "note",
-      "summary": "Neural schema design",
-      "tags": [
-        "neural",
-        "schema",
-        "ai"
-      ],
-      "word_count": 27,
-      "file_path": "D:\\PersonalAssistant\\wiki\\1_Projects\\crunch_ai_schema_1.md"
     },
     {
       "id": "1_Projects/mediroute_hackathon",
@@ -115,18 +59,32 @@
       "file_path": "D:\\PersonalAssistant\\wiki\\1_Projects\\mediroute_hackathon.md"
     },
     {
-      "id": "1_Projects/mediroute_hackathon_1",
-      "label": "Mediroute Hackathon",
+      "id": "1_Projects/note_capture_test",
+      "label": "Note Capture Test",
       "group": "1_Projects",
       "type": "note",
-      "summary": "Solo hackathon project",
+      "summary": "Testing note capture",
       "tags": [
-        "hackathon",
-        "mediroute",
-        "healthcare"
+        "testing",
+        "capture",
+        "notes"
       ],
-      "word_count": 29,
-      "file_path": "D:\\PersonalAssistant\\wiki\\1_Projects\\mediroute_hackathon_1.md"
+      "word_count": 31,
+      "file_path": "D:\\PersonalAssistant\\wiki\\1_Projects\\note_capture_test.md"
+    },
+    {
+      "id": "1_Projects/test_ui_verification_note",
+      "label": "Test UI Verification Note",
+      "group": "1_Projects",
+      "type": "note",
+      "summary": "Test note for system verification",
+      "tags": [
+        "test",
+        "verification",
+        "system"
+      ],
+      "word_count": 23,
+      "file_path": "D:\\PersonalAssistant\\wiki\\1_Projects\\test_ui_verification_note.md"
     },
     {
       "id": "2_Areas/expressing_genuine_care",
@@ -143,34 +101,6 @@
       "file_path": "D:\\PersonalAssistant\\wiki\\2_Areas\\expressing_genuine_care.md"
     },
     {
-      "id": "2_Areas/expressing_genuine_care_1",
-      "label": "Expressing Genuine Care",
-      "group": "2_Areas",
-      "type": "note",
-      "summary": "Expressing feelings to someone special",
-      "tags": [
-        "relationships",
-        "emotions",
-        "communication"
-      ],
-      "word_count": 42,
-      "file_path": "D:\\PersonalAssistant\\wiki\\2_Areas\\expressing_genuine_care_1.md"
-    },
-    {
-      "id": "2_Areas/expressing_genuine_care_2",
-      "label": "Expressing Genuine Care",
-      "group": "2_Areas",
-      "type": "note",
-      "summary": "Expressing feelings to someone special",
-      "tags": [
-        "relationships",
-        "emotions",
-        "communication"
-      ],
-      "word_count": 42,
-      "file_path": "D:\\PersonalAssistant\\wiki\\2_Areas\\expressing_genuine_care_2.md"
-    },
-    {
       "id": "2_Areas/gym_fitness_routine",
       "label": "Gym Fitness Routine",
       "group": "2_Areas",
@@ -183,48 +113,6 @@
       ],
       "word_count": 30,
       "file_path": "D:\\PersonalAssistant\\wiki\\2_Areas\\gym_fitness_routine.md"
-    },
-    {
-      "id": "2_Areas/gym_fitness_routine_1",
-      "label": "Gym Fitness Routine",
-      "group": "2_Areas",
-      "type": "note",
-      "summary": "Daily gym routine",
-      "tags": [
-        "fitness",
-        "gym",
-        "routine"
-      ],
-      "word_count": 30,
-      "file_path": "D:\\PersonalAssistant\\wiki\\2_Areas\\gym_fitness_routine_1.md"
-    },
-    {
-      "id": "2_Areas/gym_fitness_routine_2",
-      "label": "Gym Fitness Routine",
-      "group": "2_Areas",
-      "type": "note",
-      "summary": "Daily gym routine",
-      "tags": [
-        "fitness",
-        "gym",
-        "routine"
-      ],
-      "word_count": 30,
-      "file_path": "D:\\PersonalAssistant\\wiki\\2_Areas\\gym_fitness_routine_2.md"
-    },
-    {
-      "id": "2_Areas/nvidia_career_aspirations",
-      "label": "NVIDIA Career Aspirations",
-      "group": "2_Areas",
-      "type": "note",
-      "summary": "NVIDIA career goal",
-      "tags": [
-        "career",
-        "nvidia",
-        "ai"
-      ],
-      "word_count": 34,
-      "file_path": "D:\\PersonalAssistant\\wiki\\2_Areas\\nvidia_career_aspirations.md"
     },
     {
       "id": "2_Areas/nvidia_career_goal",
@@ -241,48 +129,6 @@
       "file_path": "D:\\PersonalAssistant\\wiki\\2_Areas\\nvidia_career_goal.md"
     },
     {
-      "id": "2_Areas/nvidia_career_goal_1",
-      "label": "NVIDIA Career Goal",
-      "group": "2_Areas",
-      "type": "note",
-      "summary": "NVIDIA AI engineer goal",
-      "tags": [
-        "career",
-        "nvidia",
-        "ai"
-      ],
-      "word_count": 35,
-      "file_path": "D:\\PersonalAssistant\\wiki\\2_Areas\\nvidia_career_goal_1.md"
-    },
-    {
-      "id": "2_Areas/nvidia_career_goal_2",
-      "label": "NVIDIA Career Goal",
-      "group": "2_Areas",
-      "type": "note",
-      "summary": "NVIDIA AI engineer goal",
-      "tags": [
-        "career",
-        "nvidia",
-        "ai"
-      ],
-      "word_count": 35,
-      "file_path": "D:\\PersonalAssistant\\wiki\\2_Areas\\nvidia_career_goal_2.md"
-    },
-    {
-      "id": "2_Areas/python_career_development",
-      "label": "Python Career Development",
-      "group": "2_Areas",
-      "type": "note",
-      "summary": "Python learning for career",
-      "tags": [
-        "python",
-        "dsa",
-        "career"
-      ],
-      "word_count": 35,
-      "file_path": "D:\\PersonalAssistant\\wiki\\2_Areas\\python_career_development.md"
-    },
-    {
       "id": "2_Areas/python_dsa_career",
       "label": "Python DSA Career",
       "group": "2_Areas",
@@ -295,20 +141,6 @@
       ],
       "word_count": 35,
       "file_path": "D:\\PersonalAssistant\\wiki\\2_Areas\\python_dsa_career.md"
-    },
-    {
-      "id": "2_Areas/python_dsa_career_1",
-      "label": "Python DSA Career",
-      "group": "2_Areas",
-      "type": "note",
-      "summary": "Python learning for interviews",
-      "tags": [
-        "python",
-        "dsa",
-        "career"
-      ],
-      "word_count": 35,
-      "file_path": "D:\\PersonalAssistant\\wiki\\2_Areas\\python_dsa_career_1.md"
     },
     {
       "id": "3_Resources/ml_for_beginners",
@@ -325,34 +157,6 @@
       "file_path": "D:\\PersonalAssistant\\wiki\\3_Resources\\ml_for_beginners.md"
     },
     {
-      "id": "3_Resources/ml_for_beginners_1",
-      "label": "ML For Beginners",
-      "group": "3_Resources",
-      "type": "note",
-      "summary": "ml for beginners",
-      "tags": [
-        "machine-learning",
-        "github",
-        "beginners"
-      ],
-      "word_count": 3289,
-      "file_path": "D:\\PersonalAssistant\\wiki\\3_Resources\\ml_for_beginners_1.md"
-    },
-    {
-      "id": "3_Resources/ml_for_beginners_2",
-      "label": "ML For Beginners",
-      "group": "3_Resources",
-      "type": "note",
-      "summary": "ML resources for beginners",
-      "tags": [
-        "machine-learning",
-        "beginners",
-        "github"
-      ],
-      "word_count": 3290,
-      "file_path": "D:\\PersonalAssistant\\wiki\\3_Resources\\ml_for_beginners_2.md"
-    },
-    {
       "id": "3_Resources/tensura_anime_notes",
       "label": "Tensura Anime Notes",
       "group": "3_Resources",
@@ -367,34 +171,6 @@
       "file_path": "D:\\PersonalAssistant\\wiki\\3_Resources\\tensura_anime_notes.md"
     },
     {
-      "id": "3_Resources/tensura_anime_notes_1",
-      "label": "Tensura Anime Notes",
-      "group": "3_Resources",
-      "type": "note",
-      "summary": "Favorite anime: Tensura",
-      "tags": [
-        "anime",
-        "tensura",
-        "fantasy"
-      ],
-      "word_count": 35,
-      "file_path": "D:\\PersonalAssistant\\wiki\\3_Resources\\tensura_anime_notes_1.md"
-    },
-    {
-      "id": "3_Resources/tensura_anime_notes_2",
-      "label": "Tensura Anime Notes",
-      "group": "3_Resources",
-      "type": "note",
-      "summary": "Favorite anime: Tensura",
-      "tags": [
-        "anime",
-        "tensura",
-        "fantasy"
-      ],
-      "word_count": 35,
-      "file_path": "D:\\PersonalAssistant\\wiki\\3_Resources\\tensura_anime_notes_2.md"
-    },
-    {
       "id": "3_Resources/u_n_me_book_notes",
       "label": "U n Me Book Notes",
       "group": "3_Resources",
@@ -407,48 +183,6 @@
       ],
       "word_count": 35,
       "file_path": "D:\\PersonalAssistant\\wiki\\3_Resources\\u_n_me_book_notes.md"
-    },
-    {
-      "id": "3_Resources/u_n_me_book_notes_1",
-      "label": "U n Me Book Notes",
-      "group": "3_Resources",
-      "type": "note",
-      "summary": "Tracking book progress",
-      "tags": [
-        "romance",
-        "novel",
-        "reading"
-      ],
-      "word_count": 35,
-      "file_path": "D:\\PersonalAssistant\\wiki\\3_Resources\\u_n_me_book_notes_1.md"
-    },
-    {
-      "id": "3_Resources/u_n_me_book_notes_2",
-      "label": "U n Me Book Notes",
-      "group": "3_Resources",
-      "type": "note",
-      "summary": "Tracking book progress",
-      "tags": [
-        "romance",
-        "novel",
-        "reading"
-      ],
-      "word_count": 35,
-      "file_path": "D:\\PersonalAssistant\\wiki\\3_Resources\\u_n_me_book_notes_2.md"
-    },
-    {
-      "id": "4_Archives/mediroute_hackathon",
-      "label": "Mediroute Hackathon",
-      "group": "4_Archives",
-      "type": "note",
-      "summary": "Solo hackathon project",
-      "tags": [
-        "hackathon",
-        "mediroute",
-        "healthcare"
-      ],
-      "word_count": 29,
-      "file_path": "D:\\PersonalAssistant\\wiki\\4_Archives\\mediroute_hackathon.md"
     },
     {
       "id": "category/1_Projects",
@@ -469,12 +203,6 @@
       "type": "category"
     },
     {
-      "id": "category/4_Archives",
-      "label": "4 Archives",
-      "group": "4_Archives",
-      "type": "category"
-    },
-    {
       "id": "tag/ai",
       "label": "ai",
       "group": "tags",
@@ -489,6 +217,12 @@
     {
       "id": "tag/beginners",
       "label": "beginners",
+      "group": "tags",
+      "type": "tag"
+    },
+    {
+      "id": "tag/capture",
+      "label": "capture",
       "group": "tags",
       "type": "tag"
     },
@@ -577,6 +311,12 @@
       "type": "tag"
     },
     {
+      "id": "tag/notes",
+      "label": "notes",
+      "group": "tags",
+      "type": "tag"
+    },
+    {
       "id": "tag/novel",
       "label": "novel",
       "group": "tags",
@@ -631,8 +371,32 @@
       "type": "tag"
     },
     {
+      "id": "tag/system",
+      "label": "system",
+      "group": "tags",
+      "type": "tag"
+    },
+    {
       "id": "tag/tensura",
       "label": "tensura",
+      "group": "tags",
+      "type": "tag"
+    },
+    {
+      "id": "tag/test",
+      "label": "test",
+      "group": "tags",
+      "type": "tag"
+    },
+    {
+      "id": "tag/testing",
+      "label": "testing",
+      "group": "tags",
+      "type": "tag"
+    },
+    {
+      "id": "tag/verification",
+      "label": "verification",
       "group": "tags",
       "type": "tag"
     }
@@ -645,31 +409,7 @@
       "weight": 1.0
     },
     {
-      "from": "1_Projects/ai_project_development_1",
-      "to": "category/1_Projects",
-      "type": "category",
-      "weight": 1.0
-    },
-    {
-      "from": "1_Projects/ai_project_development_2",
-      "to": "category/1_Projects",
-      "type": "category",
-      "weight": 1.0
-    },
-    {
-      "from": "1_Projects/crunch_ai_neural_schema",
-      "to": "category/1_Projects",
-      "type": "category",
-      "weight": 1.0
-    },
-    {
       "from": "1_Projects/crunch_ai_schema",
-      "to": "category/1_Projects",
-      "type": "category",
-      "weight": 1.0
-    },
-    {
-      "from": "1_Projects/crunch_ai_schema_1",
       "to": "category/1_Projects",
       "type": "category",
       "weight": 1.0
@@ -681,7 +421,13 @@
       "weight": 1.0
     },
     {
-      "from": "1_Projects/mediroute_hackathon_1",
+      "from": "1_Projects/note_capture_test",
+      "to": "category/1_Projects",
+      "type": "category",
+      "weight": 1.0
+    },
+    {
+      "from": "1_Projects/test_ui_verification_note",
       "to": "category/1_Projects",
       "type": "category",
       "weight": 1.0
@@ -693,37 +439,7 @@
       "weight": 1.0
     },
     {
-      "from": "2_Areas/expressing_genuine_care_1",
-      "to": "category/2_Areas",
-      "type": "category",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/expressing_genuine_care_2",
-      "to": "category/2_Areas",
-      "type": "category",
-      "weight": 1.0
-    },
-    {
       "from": "2_Areas/gym_fitness_routine",
-      "to": "category/2_Areas",
-      "type": "category",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/gym_fitness_routine_1",
-      "to": "category/2_Areas",
-      "type": "category",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/gym_fitness_routine_2",
-      "to": "category/2_Areas",
-      "type": "category",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/nvidia_career_aspirations",
       "to": "category/2_Areas",
       "type": "category",
       "weight": 1.0
@@ -735,31 +451,7 @@
       "weight": 1.0
     },
     {
-      "from": "2_Areas/nvidia_career_goal_1",
-      "to": "category/2_Areas",
-      "type": "category",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/nvidia_career_goal_2",
-      "to": "category/2_Areas",
-      "type": "category",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/python_career_development",
-      "to": "category/2_Areas",
-      "type": "category",
-      "weight": 1.0
-    },
-    {
       "from": "2_Areas/python_dsa_career",
-      "to": "category/2_Areas",
-      "type": "category",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/python_dsa_career_1",
       "to": "category/2_Areas",
       "type": "category",
       "weight": 1.0
@@ -771,31 +463,7 @@
       "weight": 1.0
     },
     {
-      "from": "3_Resources/ml_for_beginners_1",
-      "to": "category/3_Resources",
-      "type": "category",
-      "weight": 1.0
-    },
-    {
-      "from": "3_Resources/ml_for_beginners_2",
-      "to": "category/3_Resources",
-      "type": "category",
-      "weight": 1.0
-    },
-    {
       "from": "3_Resources/tensura_anime_notes",
-      "to": "category/3_Resources",
-      "type": "category",
-      "weight": 1.0
-    },
-    {
-      "from": "3_Resources/tensura_anime_notes_1",
-      "to": "category/3_Resources",
-      "type": "category",
-      "weight": 1.0
-    },
-    {
-      "from": "3_Resources/tensura_anime_notes_2",
       "to": "category/3_Resources",
       "type": "category",
       "weight": 1.0
@@ -807,24 +475,6 @@
       "weight": 1.0
     },
     {
-      "from": "3_Resources/u_n_me_book_notes_1",
-      "to": "category/3_Resources",
-      "type": "category",
-      "weight": 1.0
-    },
-    {
-      "from": "3_Resources/u_n_me_book_notes_2",
-      "to": "category/3_Resources",
-      "type": "category",
-      "weight": 1.0
-    },
-    {
-      "from": "4_Archives/mediroute_hackathon",
-      "to": "category/4_Archives",
-      "type": "category",
-      "weight": 1.0
-    },
-    {
       "from": "1_Projects/ai_project_development",
       "to": "tag/ai",
       "type": "tag",
@@ -843,60 +493,6 @@
       "weight": 1.0
     },
     {
-      "from": "1_Projects/ai_project_development_1",
-      "to": "tag/ai",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "1_Projects/ai_project_development_1",
-      "to": "tag/development",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "1_Projects/ai_project_development_1",
-      "to": "tag/projects",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "1_Projects/ai_project_development_2",
-      "to": "tag/ai",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "1_Projects/ai_project_development_2",
-      "to": "tag/development",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "1_Projects/ai_project_development_2",
-      "to": "tag/projects",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "1_Projects/crunch_ai_neural_schema",
-      "to": "tag/neural",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "1_Projects/crunch_ai_neural_schema",
-      "to": "tag/schema",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "1_Projects/crunch_ai_neural_schema",
-      "to": "tag/ai",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
       "from": "1_Projects/crunch_ai_schema",
       "to": "tag/neural",
       "type": "tag",
@@ -910,24 +506,6 @@
     },
     {
       "from": "1_Projects/crunch_ai_schema",
-      "to": "tag/ai",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "1_Projects/crunch_ai_schema_1",
-      "to": "tag/neural",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "1_Projects/crunch_ai_schema_1",
-      "to": "tag/schema",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "1_Projects/crunch_ai_schema_1",
       "to": "tag/ai",
       "type": "tag",
       "weight": 1.0
@@ -951,20 +529,38 @@
       "weight": 1.0
     },
     {
-      "from": "1_Projects/mediroute_hackathon_1",
-      "to": "tag/hackathon",
+      "from": "1_Projects/note_capture_test",
+      "to": "tag/testing",
       "type": "tag",
       "weight": 1.0
     },
     {
-      "from": "1_Projects/mediroute_hackathon_1",
-      "to": "tag/mediroute",
+      "from": "1_Projects/note_capture_test",
+      "to": "tag/capture",
       "type": "tag",
       "weight": 1.0
     },
     {
-      "from": "1_Projects/mediroute_hackathon_1",
-      "to": "tag/healthcare",
+      "from": "1_Projects/note_capture_test",
+      "to": "tag/notes",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "1_Projects/test_ui_verification_note",
+      "to": "tag/test",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "1_Projects/test_ui_verification_note",
+      "to": "tag/verification",
+      "type": "tag",
+      "weight": 1.0
+    },
+    {
+      "from": "1_Projects/test_ui_verification_note",
+      "to": "tag/system",
       "type": "tag",
       "weight": 1.0
     },
@@ -982,42 +578,6 @@
     },
     {
       "from": "2_Areas/expressing_genuine_care",
-      "to": "tag/communication",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/expressing_genuine_care_1",
-      "to": "tag/relationships",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/expressing_genuine_care_1",
-      "to": "tag/emotions",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/expressing_genuine_care_1",
-      "to": "tag/communication",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/expressing_genuine_care_2",
-      "to": "tag/relationships",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/expressing_genuine_care_2",
-      "to": "tag/emotions",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/expressing_genuine_care_2",
       "to": "tag/communication",
       "type": "tag",
       "weight": 1.0
@@ -1041,60 +601,6 @@
       "weight": 1.0
     },
     {
-      "from": "2_Areas/gym_fitness_routine_1",
-      "to": "tag/fitness",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/gym_fitness_routine_1",
-      "to": "tag/gym",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/gym_fitness_routine_1",
-      "to": "tag/routine",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/gym_fitness_routine_2",
-      "to": "tag/fitness",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/gym_fitness_routine_2",
-      "to": "tag/gym",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/gym_fitness_routine_2",
-      "to": "tag/routine",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/nvidia_career_aspirations",
-      "to": "tag/career",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/nvidia_career_aspirations",
-      "to": "tag/nvidia",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/nvidia_career_aspirations",
-      "to": "tag/ai",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
       "from": "2_Areas/nvidia_career_goal",
       "to": "tag/career",
       "type": "tag",
@@ -1113,60 +619,6 @@
       "weight": 1.0
     },
     {
-      "from": "2_Areas/nvidia_career_goal_1",
-      "to": "tag/career",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/nvidia_career_goal_1",
-      "to": "tag/nvidia",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/nvidia_career_goal_1",
-      "to": "tag/ai",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/nvidia_career_goal_2",
-      "to": "tag/career",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/nvidia_career_goal_2",
-      "to": "tag/nvidia",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/nvidia_career_goal_2",
-      "to": "tag/ai",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/python_career_development",
-      "to": "tag/python",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/python_career_development",
-      "to": "tag/dsa",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/python_career_development",
-      "to": "tag/career",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
       "from": "2_Areas/python_dsa_career",
       "to": "tag/python",
       "type": "tag",
@@ -1180,24 +632,6 @@
     },
     {
       "from": "2_Areas/python_dsa_career",
-      "to": "tag/career",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/python_dsa_career_1",
-      "to": "tag/python",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/python_dsa_career_1",
-      "to": "tag/dsa",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/python_dsa_career_1",
       "to": "tag/career",
       "type": "tag",
       "weight": 1.0
@@ -1221,42 +655,6 @@
       "weight": 1.0
     },
     {
-      "from": "3_Resources/ml_for_beginners_1",
-      "to": "tag/machine-learning",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "3_Resources/ml_for_beginners_1",
-      "to": "tag/github",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "3_Resources/ml_for_beginners_1",
-      "to": "tag/beginners",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "3_Resources/ml_for_beginners_2",
-      "to": "tag/machine-learning",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "3_Resources/ml_for_beginners_2",
-      "to": "tag/beginners",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "3_Resources/ml_for_beginners_2",
-      "to": "tag/github",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
       "from": "3_Resources/tensura_anime_notes",
       "to": "tag/anime",
       "type": "tag",
@@ -1270,42 +668,6 @@
     },
     {
       "from": "3_Resources/tensura_anime_notes",
-      "to": "tag/fantasy",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "3_Resources/tensura_anime_notes_1",
-      "to": "tag/anime",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "3_Resources/tensura_anime_notes_1",
-      "to": "tag/tensura",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "3_Resources/tensura_anime_notes_1",
-      "to": "tag/fantasy",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "3_Resources/tensura_anime_notes_2",
-      "to": "tag/anime",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "3_Resources/tensura_anime_notes_2",
-      "to": "tag/tensura",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "3_Resources/tensura_anime_notes_2",
       "to": "tag/fantasy",
       "type": "tag",
       "weight": 1.0
@@ -1326,408 +688,6 @@
       "from": "3_Resources/u_n_me_book_notes",
       "to": "tag/reading",
       "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "3_Resources/u_n_me_book_notes_1",
-      "to": "tag/romance",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "3_Resources/u_n_me_book_notes_1",
-      "to": "tag/novel",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "3_Resources/u_n_me_book_notes_1",
-      "to": "tag/reading",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "3_Resources/u_n_me_book_notes_2",
-      "to": "tag/romance",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "3_Resources/u_n_me_book_notes_2",
-      "to": "tag/novel",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "3_Resources/u_n_me_book_notes_2",
-      "to": "tag/reading",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "4_Archives/mediroute_hackathon",
-      "to": "tag/hackathon",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "4_Archives/mediroute_hackathon",
-      "to": "tag/mediroute",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "4_Archives/mediroute_hackathon",
-      "to": "tag/healthcare",
-      "type": "tag",
-      "weight": 1.0
-    },
-    {
-      "from": "1_Projects/ai_project_development",
-      "to": "1_Projects/ai_project_development_2",
-      "type": "explicit",
-      "weight": 1.0
-    },
-    {
-      "from": "1_Projects/ai_project_development_1",
-      "to": "1_Projects/ai_project_development_2",
-      "type": "explicit",
-      "weight": 1.0
-    },
-    {
-      "from": "1_Projects/crunch_ai_neural_schema",
-      "to": "1_Projects/crunch_ai_schema_1",
-      "type": "explicit",
-      "weight": 1.0
-    },
-    {
-      "from": "1_Projects/crunch_ai_schema",
-      "to": "1_Projects/crunch_ai_neural_schema",
-      "type": "explicit",
-      "weight": 1.0
-    },
-    {
-      "from": "1_Projects/crunch_ai_schema",
-      "to": "1_Projects/crunch_ai_schema_1",
-      "type": "explicit",
-      "weight": 1.0
-    },
-    {
-      "from": "1_Projects/mediroute_hackathon",
-      "to": "4_Archives/mediroute_hackathon",
-      "type": "explicit",
-      "weight": 1.0
-    },
-    {
-      "from": "1_Projects/mediroute_hackathon_1",
-      "to": "4_Archives/mediroute_hackathon",
-      "type": "explicit",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/expressing_genuine_care",
-      "to": "2_Areas/expressing_genuine_care_2",
-      "type": "explicit",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/expressing_genuine_care_1",
-      "to": "2_Areas/expressing_genuine_care_2",
-      "type": "explicit",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/gym_fitness_routine",
-      "to": "2_Areas/gym_fitness_routine_2",
-      "type": "explicit",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/gym_fitness_routine_1",
-      "to": "2_Areas/gym_fitness_routine_2",
-      "type": "explicit",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/nvidia_career_aspirations",
-      "to": "2_Areas/nvidia_career_goal_2",
-      "type": "explicit",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/nvidia_career_goal",
-      "to": "2_Areas/nvidia_career_aspirations",
-      "type": "explicit",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/nvidia_career_goal",
-      "to": "2_Areas/nvidia_career_goal_2",
-      "type": "explicit",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/nvidia_career_goal_1",
-      "to": "2_Areas/nvidia_career_aspirations",
-      "type": "explicit",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/nvidia_career_goal_1",
-      "to": "2_Areas/nvidia_career_goal_2",
-      "type": "explicit",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/python_career_development",
-      "to": "2_Areas/python_dsa_career_1",
-      "type": "explicit",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/python_dsa_career",
-      "to": "2_Areas/python_career_development",
-      "type": "explicit",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/python_dsa_career",
-      "to": "2_Areas/python_dsa_career_1",
-      "type": "explicit",
-      "weight": 1.0
-    },
-    {
-      "from": "3_Resources/ml_for_beginners",
-      "to": "3_Resources/ml_for_beginners_2",
-      "type": "explicit",
-      "weight": 1.0
-    },
-    {
-      "from": "3_Resources/ml_for_beginners_1",
-      "to": "3_Resources/ml_for_beginners_2",
-      "type": "explicit",
-      "weight": 1.0
-    },
-    {
-      "from": "3_Resources/tensura_anime_notes",
-      "to": "3_Resources/tensura_anime_notes_2",
-      "type": "explicit",
-      "weight": 1.0
-    },
-    {
-      "from": "3_Resources/tensura_anime_notes_1",
-      "to": "3_Resources/tensura_anime_notes_2",
-      "type": "explicit",
-      "weight": 1.0
-    },
-    {
-      "from": "3_Resources/u_n_me_book_notes",
-      "to": "3_Resources/u_n_me_book_notes_2",
-      "type": "explicit",
-      "weight": 1.0
-    },
-    {
-      "from": "3_Resources/u_n_me_book_notes_1",
-      "to": "3_Resources/u_n_me_book_notes_2",
-      "type": "explicit",
-      "weight": 1.0
-    },
-    {
-      "from": "1_Projects/ai_project_development",
-      "to": "1_Projects/ai_project_development_1",
-      "type": "semantic",
-      "weight": 1.0
-    },
-    {
-      "from": "1_Projects/ai_project_development",
-      "to": "1_Projects/ai_project_development_2",
-      "type": "semantic",
-      "weight": 1.0
-    },
-    {
-      "from": "1_Projects/ai_project_development_1",
-      "to": "1_Projects/ai_project_development_2",
-      "type": "semantic",
-      "weight": 1.0
-    },
-    {
-      "from": "1_Projects/crunch_ai_neural_schema",
-      "to": "1_Projects/crunch_ai_schema",
-      "type": "semantic",
-      "weight": 0.9917
-    },
-    {
-      "from": "1_Projects/crunch_ai_neural_schema",
-      "to": "1_Projects/crunch_ai_schema_1",
-      "type": "semantic",
-      "weight": 0.9848
-    },
-    {
-      "from": "1_Projects/crunch_ai_schema",
-      "to": "1_Projects/crunch_ai_schema_1",
-      "type": "semantic",
-      "weight": 0.9866
-    },
-    {
-      "from": "1_Projects/mediroute_hackathon",
-      "to": "1_Projects/mediroute_hackathon_1",
-      "type": "semantic",
-      "weight": 1.0
-    },
-    {
-      "from": "1_Projects/mediroute_hackathon",
-      "to": "4_Archives/mediroute_hackathon",
-      "type": "semantic",
-      "weight": 1.0
-    },
-    {
-      "from": "1_Projects/mediroute_hackathon_1",
-      "to": "4_Archives/mediroute_hackathon",
-      "type": "semantic",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/expressing_genuine_care",
-      "to": "2_Areas/expressing_genuine_care_1",
-      "type": "semantic",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/expressing_genuine_care",
-      "to": "2_Areas/expressing_genuine_care_2",
-      "type": "semantic",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/expressing_genuine_care_1",
-      "to": "2_Areas/expressing_genuine_care_2",
-      "type": "semantic",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/gym_fitness_routine",
-      "to": "2_Areas/gym_fitness_routine_1",
-      "type": "semantic",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/gym_fitness_routine",
-      "to": "2_Areas/gym_fitness_routine_2",
-      "type": "semantic",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/gym_fitness_routine_1",
-      "to": "2_Areas/gym_fitness_routine_2",
-      "type": "semantic",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/nvidia_career_aspirations",
-      "to": "2_Areas/nvidia_career_goal",
-      "type": "semantic",
-      "weight": 0.9583
-    },
-    {
-      "from": "2_Areas/nvidia_career_aspirations",
-      "to": "2_Areas/nvidia_career_goal_1",
-      "type": "semantic",
-      "weight": 0.9583
-    },
-    {
-      "from": "2_Areas/nvidia_career_aspirations",
-      "to": "2_Areas/nvidia_career_goal_2",
-      "type": "semantic",
-      "weight": 0.9583
-    },
-    {
-      "from": "2_Areas/nvidia_career_goal",
-      "to": "2_Areas/nvidia_career_goal_1",
-      "type": "semantic",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/nvidia_career_goal",
-      "to": "2_Areas/nvidia_career_goal_2",
-      "type": "semantic",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/nvidia_career_goal_1",
-      "to": "2_Areas/nvidia_career_goal_2",
-      "type": "semantic",
-      "weight": 1.0
-    },
-    {
-      "from": "2_Areas/python_career_development",
-      "to": "2_Areas/python_dsa_career",
-      "type": "semantic",
-      "weight": 0.9006
-    },
-    {
-      "from": "2_Areas/python_career_development",
-      "to": "2_Areas/python_dsa_career_1",
-      "type": "semantic",
-      "weight": 0.8753
-    },
-    {
-      "from": "2_Areas/python_dsa_career",
-      "to": "2_Areas/python_dsa_career_1",
-      "type": "semantic",
-      "weight": 0.9683
-    },
-    {
-      "from": "3_Resources/ml_for_beginners",
-      "to": "3_Resources/ml_for_beginners_1",
-      "type": "semantic",
-      "weight": 1.0
-    },
-    {
-      "from": "3_Resources/ml_for_beginners",
-      "to": "3_Resources/ml_for_beginners_2",
-      "type": "semantic",
-      "weight": 0.9941
-    },
-    {
-      "from": "3_Resources/ml_for_beginners_1",
-      "to": "3_Resources/ml_for_beginners_2",
-      "type": "semantic",
-      "weight": 0.9941
-    },
-    {
-      "from": "3_Resources/tensura_anime_notes",
-      "to": "3_Resources/tensura_anime_notes_1",
-      "type": "semantic",
-      "weight": 0.9951
-    },
-    {
-      "from": "3_Resources/tensura_anime_notes",
-      "to": "3_Resources/tensura_anime_notes_2",
-      "type": "semantic",
-      "weight": 0.9951
-    },
-    {
-      "from": "3_Resources/tensura_anime_notes_1",
-      "to": "3_Resources/tensura_anime_notes_2",
-      "type": "semantic",
-      "weight": 1.0
-    },
-    {
-      "from": "3_Resources/u_n_me_book_notes",
-      "to": "3_Resources/u_n_me_book_notes_1",
-      "type": "semantic",
-      "weight": 1.0
-    },
-    {
-      "from": "3_Resources/u_n_me_book_notes",
-      "to": "3_Resources/u_n_me_book_notes_2",
-      "type": "semantic",
-      "weight": 1.0
-    },
-    {
-      "from": "3_Resources/u_n_me_book_notes_1",
-      "to": "3_Resources/u_n_me_book_notes_2",
-      "type": "semantic",
       "weight": 1.0
     }
   ]
