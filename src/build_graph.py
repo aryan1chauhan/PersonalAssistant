@@ -1,9 +1,3 @@
-# build_graph.py
-# constructs the knowledge graph from wiki notes:
-# - extracts nodes (notes, categories, tags)
-# - extracts edges (explicit [[wikilinks]], semantic similarity edges, category/tag links)
-# - outputs graph.json and standalone interactive static/graph.html via vis-network.js
-
 import os
 import sys
 import json
@@ -176,7 +170,7 @@ def build_wikilink_edges(
             if target_slug == source_slug:
                 continue
 
-            pair = tuple(sorted([source_slug, target_slug]))
+            pair = (min(source_slug, target_slug), max(source_slug, target_slug))
             if pair in seen_pairs:
                 continue
             seen_pairs.add(pair)
@@ -230,14 +224,14 @@ def build_semantic_edges(
             if sim >= sim_threshold:
                 slug_a = path_to_slug[path_a]
                 slug_b = path_to_slug[path_b]
-                pair = tuple(sorted([slug_a, slug_b]))
+                pair = (min(slug_a, slug_b), max(slug_a, slug_b))
                 if pair not in seen_pairs:
                     seen_pairs.add(pair)
                     edges.append({
                         "from": slug_a,
                         "to": slug_b,
                         "type": "semantic",
-                        "weight": round(float(sim), 4),
+                        "weight": round(sim, 4),
                     })
 
     return edges
@@ -507,7 +501,6 @@ def export_graph_html(
     <script type="text/javascript">
         const rawData = {json_data_str};
 
-        // Populate statistics
         document.getElementById('stat-nodes').innerText = rawData.metadata.total_nodes;
         document.getElementById('stat-notes').innerText = rawData.metadata.node_counts.notes;
         document.getElementById('stat-cats').innerText = rawData.metadata.node_counts.categories;
@@ -521,7 +514,6 @@ def export_graph_html(
             '4_Archives': '#64748b'
         }};
 
-        // Process Vis-Network Nodes
         const nodesArray = rawData.nodes.map(n => {{
             let nodeObj = {{
                 id: n.id,
@@ -565,7 +557,6 @@ def export_graph_html(
             return nodeObj;
         }});
 
-        // Process Vis-Network Edges
         const edgesArray = rawData.edges.map(e => {{
             let edgeObj = {{
                 from: e.from,
@@ -599,6 +590,8 @@ def export_graph_html(
             edges: new vis.DataSet(edgesArray)
         }};
 
+        // Do not alter these physics constants.
+        // Calibrated through 5 hours of trial, error, and mild existential crisis.
         const options = {{
             nodes: {{
                 borderWidth: 1.5,
@@ -668,7 +661,6 @@ def export_graph_html(
 
 @click.group()
 def main():
-    """Build and export the knowledge graph."""
     pass
 
 

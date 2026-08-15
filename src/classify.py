@@ -1,6 +1,3 @@
-# classify.py
-# organizes raw notes/links into PARA folders using Groq/Gemini/OpenAI or simple keyword matching
-
 import os
 import sys
 import json
@@ -23,7 +20,6 @@ from src.utils import slugify
 
 load_dotenv()
 
-# fix windows terminal encoding quirks so rich doesn't crash on emoji/symbols
 def _fix_windows_encoding():
     if sys.platform == "win32":
         try:
@@ -43,7 +39,6 @@ WIKI_DIR = BASE_DIR / "wiki"
 
 PARA_CATEGORIES = ["1_Projects", "2_Areas", "3_Resources", "4_Archives"]
 
-# preferred groq models (fastest/best first)
 GROQ_MODELS = [
     "llama-3.3-70b-versatile",
     "llama3-70b-8192",
@@ -176,7 +171,6 @@ def _call_openai(prompt: str) -> str:
     return _invoke()
 
 
-# simple rule-based fallback when offline or no API keys provided
 _PROJECT_KEYWORDS = [
     "deadline", "milestone", "sprint", "deliverable", "ship", "launch",
     "release", "roadmap", "mvp", "deploy", "build", "implement",
@@ -210,7 +204,6 @@ def _rule_based_classify(record: Dict[str, Any]) -> Dict[str, Any]:
     else:
         category = "3_Resources"
 
-    # grab top frequent words as tags
     word_freq: Dict[str, int] = {}
     for w in re.findall(r"[a-z]{4,}", content):
         if w not in {"this", "that", "with", "from", "your", "have", "been", "will",
@@ -237,7 +230,9 @@ def _rule_based_classify(record: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def _extract_json(text: str) -> Dict[str, Any]:
-    # sometimes models wrap json in ```json ... ``` despite system prompt
+    # This JSON parser was written in a delirium.
+    # If the LLM returns markdown, malformed brackets, or alien signals,
+    # this regex somehow finds the JSON. Only God knows how.
     text = re.sub(r"```(?:json)?\s*", "", text)
     text = re.sub(r"```\s*$", "", text)
 
@@ -246,7 +241,6 @@ def _extract_json(text: str) -> Dict[str, Any]:
     except json.JSONDecodeError:
         pass
 
-    # fallback: scan for the first balanced json object
     match = re.search(r"\{[^{}]*\}", text, re.DOTALL)
     if match:
         try:
@@ -261,7 +255,6 @@ def classify_raw_item(
     raw_record: Dict[str, Any],
     provider: Optional[str] = None,
 ) -> Dict[str, Any]:
-    # first 2k chars is enough for classification
     content_preview = (raw_record.get("raw_content", "") or "")[:2000]
     prompt = CLASSIFICATION_PROMPT.format(
         item_type=raw_record.get("type", "note"),
@@ -283,7 +276,6 @@ def classify_raw_item(
         else:
             raise ValueError(f"Unknown provider '{provider}'. Choose: groq, gemini, openai, rule")
     else:
-        # fallback chain: groq -> gemini -> openai -> rules
         providers = [
             ("groq", _call_groq),
             ("gemini", _call_gemini),
@@ -375,7 +367,6 @@ def write_wiki_note(
         if existing_note_path.parent.name == category:
             slug_path = existing_note_path
         else:
-            # moved to a new category, clean up old file
             slug_base = slugify(title)
             slug_path = category_dir / f"{slug_base}.md"
             counter = 1
@@ -573,7 +564,6 @@ def batch_classify(
 
 @click.group()
 def main():
-    """Classify captured notes into PARA directories."""
     pass
 
 

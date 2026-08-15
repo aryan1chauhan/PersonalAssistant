@@ -1,7 +1,3 @@
-# link.py
-# auto-links notes based on semantic similarity using sentence-transformers (all-MiniLM-L6-v2)
-# computes cosine similarity matrix and appends bidirectional [[wikilinks]]
-
 import os
 import sys
 import re
@@ -15,7 +11,6 @@ from rich.table import Table
 from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn
 from dotenv import load_dotenv
 
-# fix windows encoding for terminal output
 def _fix_windows_encoding():
     if sys.platform == "win32":
         try:
@@ -35,7 +30,6 @@ DATA_DIR = BASE_DIR / "data"
 
 PARA_CATEGORIES = ["1_Projects", "2_Areas", "3_Resources", "4_Archives"]
 
-# defaults (overridable via .env)
 EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "all-MiniLM-L6-v2")
 SIMILARITY_THRESHOLD = float(os.getenv("SIMILARITY_THRESHOLD", "0.65"))
 MAX_LINKS_PER_NOTE = 5
@@ -45,7 +39,6 @@ RELATED_SECTION_HEADER = "## Related Knowledge"
 
 
 def parse_wiki_note(filepath: Path) -> Optional[Dict[str, Any]]:
-    # quick regex parser for YAML frontmatter so we don't need pyyaml
     try:
         text = filepath.read_text(encoding="utf-8")
     except Exception:
@@ -59,7 +52,6 @@ def parse_wiki_note(filepath: Path) -> Optional[Dict[str, Any]]:
     body_start = fm_match.end()
     body = text[body_start:].strip()
 
-    # don't include previously generated related links in the embedding text
     body_for_embedding = re.split(
         r"^## Related Knowledge\s*$", body, flags=re.MULTILINE
     )[0].strip()
@@ -123,7 +115,6 @@ def _load_embedding_model(model_name: Optional[str] = None):
 
 
 def _compose_embedding_text(note: Dict[str, Any]) -> str:
-    # combine title + summary + body text for a fuller semantic representation
     parts = []
     if note.get("title"):
         parts.append(note["title"])
@@ -166,6 +157,8 @@ def cosine_similarity(vec_a, vec_b) -> float:
 def compute_similarity_matrix(
     embeddings: List[Any],
 ) -> List[List[float]]:
+    # When I wrote this linear algebra block, only God and I understood it.
+    # Now, only God knows. If you touch this matrix math, prepare for dimensional tears.
     import numpy as np
 
     n = len(embeddings)
@@ -180,7 +173,6 @@ def compute_similarity_matrix(
     norms = np.where(norms == 0, 1.0, norms)
     normalized = emb_array / norms
 
-    # dot product on normalized vectors = cosine similarity
     sim_matrix = np.dot(normalized, normalized.T)
 
     for i in range(n):
@@ -221,7 +213,6 @@ def find_links(
     n = len(notes)
     links: Dict[int, List[Tuple[int, float]]] = {i: [] for i in range(n)}
 
-    # ignore super short stub notes to prevent noisy false positives
     short_indices = {i for i, note in enumerate(notes) if note["word_count"] < min_words}
 
     for i in range(n):
@@ -249,7 +240,9 @@ def inject_wikilinks(
     notes: List[Dict[str, Any]],
     links: Dict[int, List[Tuple[int, float]]],
 ) -> int:
-    # make links bidirectional so both notes reference each other
+    # Bidirectional link injection:
+    # Written at 4 AM fueled by caffeine and spite.
+    # It works. Do not refactor. Do not question the recursion.
     bidir_links: Dict[int, set] = {i: set() for i in range(len(notes))}
     for i, targets in links.items():
         for j, _score in targets:
@@ -375,7 +368,6 @@ def run_auto_linking(
     target_wiki = wiki_dir or WIKI_DIR
     sim_threshold = threshold if threshold is not None else SIMILARITY_THRESHOLD
 
-    # 1. scan notes
     console.print("[bold blue]Step 1/5:[/bold blue] Scanning wiki notes...")
     notes = scan_wiki_notes(target_wiki)
     if not notes:
@@ -391,21 +383,18 @@ def run_auto_linking(
             f"  [dim]{len(short_notes)} notes skipped (< {min_words} words)[/dim]"
         )
 
-    # 2. clear old links so we don't accumulate duplicates
     console.print("[bold blue]Step 2/5:[/bold blue] Clearing existing related sections...")
     cleared = clear_all_related_sections(target_wiki)
     if cleared:
         console.print(f"  Cleared [dim]{cleared}[/dim] existing sections.")
     notes = scan_wiki_notes(target_wiki)
 
-    # 3. compute embeddings
     console.print(f"[bold blue]Step 3/5:[/bold blue] Computing embeddings with '{model_name or EMBEDDING_MODEL}'...")
     embeddings = compute_embeddings(notes, model=model, model_name=model_name)
     console.print(f"  Computed [cyan]{len(embeddings)}[/cyan] embedding vectors.")
 
     _save_embeddings(notes, embeddings, data_dir=DATA_DIR)
 
-    # 4. compute similarity matrix
     console.print("[bold blue]Step 4/5:[/bold blue] Computing pairwise similarity...")
     sim_matrix = compute_similarity_matrix(embeddings)
     link_map = find_links(
@@ -421,7 +410,6 @@ def run_auto_linking(
         f"(threshold >= {sim_threshold})."
     )
 
-    # 5. inject [[wikilinks]]
     console.print("[bold blue]Step 5/5:[/bold blue] Injecting bidirectional wikilinks...")
     modified = inject_wikilinks(notes, link_map)
 
@@ -460,7 +448,6 @@ def run_auto_linking(
 
 @click.group()
 def main():
-    """Auto-link wiki notes using dense embeddings."""
     pass
 
 

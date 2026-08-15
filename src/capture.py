@@ -1,6 +1,3 @@
-# capture.py - ingestion layer
-# takes notes, URLs, or files and dumps them as JSON into raw/
-
 import os
 import sys
 import json
@@ -101,7 +98,8 @@ def capture_item(
 
 
 def auto_capture(payload: str, title: Optional[str] = None) -> Dict[str, Any]:
-    # figures out what you threw at it - URL? file path? just text?
+    # Guessing what the user gave us: URL, local file, or rambling note.
+    # Works 99.9% of the time. The other 0.1% is between you and the universe.
     payload_str = payload.strip()
 
     if is_url(payload_str):
@@ -114,7 +112,6 @@ def auto_capture(payload: str, title: Optional[str] = None) -> Dict[str, Any]:
 
 @click.group()
 def main():
-    """Capture pipeline - save notes, links, or files into raw/"""
     ensure_directories()
 
 
@@ -152,7 +149,6 @@ def cli_entrypoint():
         first_arg = sys.argv[1]
         valid_commands = ["note", "link", "file", "auto", "--help", "-h"]
         if first_arg not in valid_commands and not first_arg.startswith("-"):
-            # if someone just passes raw text, treat it as auto-detect
             sys.argv.insert(1, "auto")
     main()
 

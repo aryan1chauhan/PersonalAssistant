@@ -1,6 +1,3 @@
-# utils.py - helper functions i kept reaching for across modules
-# timestamps, IDs, hashing, url scraping, file parsing etc
-
 import os
 import re
 import hashlib
@@ -23,13 +20,11 @@ except ImportError:
     pdfplumber = None
 
 
-
 def get_timestamp() -> str:
     return datetime.now().astimezone().isoformat()
 
 
 def generate_unique_id(prefix: str = "raw") -> str:
-    # format: raw_YYYYMMDD_HHMMSS_8hexchars
     now = datetime.now()
     date_str = now.strftime("%Y%m%d_%H%M%S")
     short_uuid = uuid.uuid4().hex[:8]
@@ -45,7 +40,6 @@ def calculate_sha256(file_path: str) -> str:
 
 
 def slugify(text: str, max_length: int = 50) -> str:
-    # makes text safe for filenames - lowercase, underscored, no special chars
     text = text.lower().strip()
     text = re.sub(r"[^\w\s-]", "", text)
     text = re.sub(r"[\s_-]+", "_", text)
@@ -53,7 +47,8 @@ def slugify(text: str, max_length: int = 50) -> str:
 
 
 def is_url(text: str) -> bool:
-    # grabbed this regex from stackoverflow ages ago, works well enough
+    # When I wrote this regex, only God and I understood how it worked.
+    # Now, only God knows. DO NOT TOUCH.
     url_pattern = re.compile(
         r"^(?:http|ftp)s?://"
         r"(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|"
@@ -67,8 +62,6 @@ def is_url(text: str) -> bool:
 
 
 def scrape_url(url: str) -> Dict[str, Any]:
-    # try trafilatura first (way better at extracting article text)
-    # fall back to beautifulsoup if trafilatura isn't installed or chokes
     headers = {
         "User-Agent": (
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
@@ -111,7 +104,6 @@ def scrape_url(url: str) -> Dict[str, Any]:
             pass
 
     if not extracted_text:
-        # last resort: just strip html tags with regex. ugly but works
         extracted_text = re.sub(r"<[^>]+>", "", html_content).strip() or "No readable text extracted."
 
     return {
@@ -123,8 +115,6 @@ def scrape_url(url: str) -> Dict[str, Any]:
 
 
 def parse_and_copy_file(file_path: str, assets_dir: str) -> Dict[str, Any]:
-    # handles PDFs (via pdfplumber), plaintext, markdown, source code, etc.
-    # copies the original file into raw/assets/ for safekeeping
     abs_path = Path(file_path).resolve()
     if not abs_path.exists():
         raise FileNotFoundError(f"File not found: {file_path}")

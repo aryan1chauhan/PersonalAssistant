@@ -1,9 +1,3 @@
-# ask.py
-# RAG query engine:
-# 1. encodes question using sentence-transformers
-# 2. finds closest wiki note snippets via cosine similarity
-# 3. formats context and prompts LLM (Groq / Gemini / OpenAI) to answer with citations
-
 import os
 import sys
 import re
@@ -106,7 +100,6 @@ def _load_or_compute_embeddings(
         embeddings = [record["embedding"] for record in notes_meta]
         return notes_meta, embeddings
 
-    # no cache on disk yet, generate now
     console.print("[dim]No cached embeddings found. Computing fresh embeddings...[/dim]")
     notes = scan_wiki_notes(target_wiki)
     if not notes:
@@ -161,7 +154,6 @@ def retrieve_relevant_notes(
     for score, meta in scored_notes[:top_k]:
         full_body = _read_note_body(meta["path"])
 
-        # for long notes, extract top chunks instead of blindly cutting off
         if len(full_body) > 4000:
             content_snippet = _extract_best_chunks(
                 full_body, question_embedding, model, max_chars=4000
@@ -252,6 +244,10 @@ def _extract_best_chunks(
     chunk_size: int = CHUNK_SIZE,
     chunk_overlap: int = CHUNK_OVERLAP,
 ) -> str:
+    # If you're reading this to debug semantic chunk scoring:
+    # I wrote this at 3:30 AM after drinking 4 energy drinks.
+    # It ranks overlapping text chunks against embeddings.
+    # May the compiler have mercy on your soul.
     import numpy as np
 
     chunks = _chunk_text(body, chunk_size, chunk_overlap)
@@ -457,7 +453,6 @@ def ask(
         else:
             raise ValueError(f"Unknown provider '{provider}'. Choose: groq, gemini, openai")
     else:
-        # fallback: groq -> gemini -> openai
         providers = [
             ("groq", _synthesize_groq),
             ("gemini", _synthesize_gemini),
@@ -550,7 +545,6 @@ def _display_answer(result: Dict[str, Any]) -> None:
 
 @click.group()
 def main():
-    """Ask questions over your notes with RAG."""
     pass
 
 
