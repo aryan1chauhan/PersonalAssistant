@@ -43,11 +43,11 @@ flowchart TD
 Before triggering the deployment, verify the following prerequisites:
 
 - [x] **Core Pipeline Verified**: All 118 unit & integration tests passing (`pytest`).
-- [ ] **Repository Pushed to GitHub**: `main` branch up to date on `https://github.com/<username>/<repo>`.
-- [ ] **Initial Knowledge Brain Seeded**: Ensure `wiki/` notes and pre-generated `graph.json` are committed so the deployed app boots with an active visual graph.
-- [ ] **Streamlit Configuration**: Add `.streamlit/config.toml` for theme consistency and performance.
-- [ ] **Secrets Mapping**: Ensure API keys (`GROQ_API_KEY`, `GEMINI_API_KEY`, `OPENAI_API_KEY`) are ready in TOML format for Streamlit Cloud's Secrets Manager.
-- [ ] **Memory Footprint Checked**: Memory usage optimized to stay comfortably within the Streamlit Free Tier limit (~1 GB RAM).
+- [x] **Repository Pushed to GitHub**: `main` branch up to date on `https://github.com/aryan1chauhan/PersonalAssistant`.
+- [x] **Initial Knowledge Brain Seeded**: `wiki/` notes and pre-generated `graph.json` are committed.
+- [x] **Streamlit Configuration**: Added `.streamlit/config.toml` and `runtime.txt`.
+- [x] **Memory Footprint Checked**: Memory usage optimized with CPU-only PyTorch distribution.
+- [ ] **Secrets Mapping**: Configure API keys in Streamlit Cloud Dashboard (Settings > Secrets).
 
 ---
 
