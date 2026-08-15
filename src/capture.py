@@ -1,6 +1,5 @@
-"""
-SecondSelf Ingestion Module: Capture anything (note, link, file) into raw/ landing vault.
-"""
+# capture.py - ingestion layer
+# takes notes, URLs, or files and dumps them as JSON into raw/
 
 import os
 import sys
@@ -22,7 +21,6 @@ from src.utils import (
 
 console = Console()
 
-# Resolve workspace base paths
 BASE_DIR = Path(__file__).resolve().parent.parent
 RAW_DIR = BASE_DIR / "raw"
 ASSETS_DIR = RAW_DIR / "assets"
@@ -30,7 +28,6 @@ WIKI_DIR = BASE_DIR / "wiki"
 
 
 def ensure_directories():
-    """Ensure raw/, raw/assets/, and wiki/ directories exist."""
     RAW_DIR.mkdir(parents=True, exist_ok=True)
     ASSETS_DIR.mkdir(parents=True, exist_ok=True)
     WIKI_DIR.mkdir(parents=True, exist_ok=True)
@@ -44,10 +41,6 @@ def capture_item(
     title: Optional[str] = None,
     raw_dir: Optional[Path] = None,
 ) -> Dict[str, Any]:
-    """
-    Core capture routine for notes, web links, and local files.
-    Saves JSON record to raw/{id}.json and returns the record dict.
-    """
     ensure_directories()
     target_raw_dir = raw_dir or RAW_DIR
     target_assets_dir = target_raw_dir / "assets"
@@ -93,7 +86,6 @@ def capture_item(
     else:
         raise ValueError(f"Unsupported item type: '{item_type}'. Must be note, link, or file.")
 
-    # Save to raw/{id}.json
     out_file = target_raw_dir / f"{unique_id}.json"
     with open(out_file, "w", encoding="utf-8") as f:
         json.dump(record, f, indent=2, ensure_ascii=False)
@@ -109,7 +101,7 @@ def capture_item(
 
 
 def auto_capture(payload: str, title: Optional[str] = None) -> Dict[str, Any]:
-    """Auto-detect input modality (URL, local file, or text note)."""
+    # figures out what you threw at it - URL? file path? just text?
     payload_str = payload.strip()
 
     if is_url(payload_str):
@@ -120,10 +112,9 @@ def auto_capture(payload: str, title: Optional[str] = None) -> Dict[str, Any]:
         return capture_item("note", payload_str, title=title)
 
 
-# Click CLI Group
 @click.group()
 def main():
-    """SecondSelf Capture Pipeline: Save any note, web link, or local file into raw/."""
+    """Capture pipeline - save notes, links, or files into raw/"""
     ensure_directories()
 
 
@@ -131,7 +122,6 @@ def main():
 @click.argument("content")
 @click.option("--title", "-t", help="Optional title for the note.")
 def capture_note_cmd(content: str, title: Optional[str]):
-    """Capture a plain text note."""
     capture_item("note", content, title=title)
 
 
@@ -139,7 +129,6 @@ def capture_note_cmd(content: str, title: Optional[str]):
 @click.argument("url")
 @click.option("--title", "-t", help="Optional title for the web link.")
 def capture_link_cmd(url: str, title: Optional[str]):
-    """Capture a web URL link."""
     capture_item("link", url, title=title)
 
 
@@ -147,7 +136,6 @@ def capture_link_cmd(url: str, title: Optional[str]):
 @click.argument("filepath")
 @click.option("--title", "-t", help="Optional title for the file.")
 def capture_file_cmd(filepath: str, title: Optional[str]):
-    """Capture a local document or PDF file."""
     capture_item("file", filepath, title=title)
 
 
@@ -155,18 +143,16 @@ def capture_file_cmd(filepath: str, title: Optional[str]):
 @click.argument("payload")
 @click.option("--title", "-t", help="Optional title for captured item.")
 def capture_auto_cmd(payload: str, title: Optional[str]):
-    """Auto-detect modality (note, URL, or file path)."""
     auto_capture(payload, title=title)
 
 
 def cli_entrypoint():
-    """Smart CLI entrypoint allowing both subcommands and direct auto-detection."""
     ensure_directories()
     if len(sys.argv) > 1:
         first_arg = sys.argv[1]
         valid_commands = ["note", "link", "file", "auto", "--help", "-h"]
         if first_arg not in valid_commands and not first_arg.startswith("-"):
-            # Insert 'auto' subcommand dynamically
+            # if someone just passes raw text, treat it as auto-detect
             sys.argv.insert(1, "auto")
     main()
 

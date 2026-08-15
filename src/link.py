@@ -1,10 +1,6 @@
-"""
-SecondSelf Dense Embeddings & Vector Auto-Linking Engine — "Connect the Dots"
-
-Computes local sentence-transformer embeddings for every wiki note, calculates
-pairwise cosine similarity, and automatically injects bidirectional [[wikilinks]]
-between semantically related notes under a '## Related Knowledge' section.
-"""
+# link.py
+# auto-links notes based on semantic similarity using sentence-transformers (all-MiniLM-L6-v2)
+# computes cosine similarity matrix and appends bidirectional [[wikilinks]]
 
 import os
 import sys
@@ -19,13 +15,7 @@ from rich.table import Table
 from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn
 from dotenv import load_dotenv
 
-# ---------------------------------------------------------------------------
-# Setup
-# ---------------------------------------------------------------------------
-
-load_dotenv()
-
-# Force UTF-8 stdout on Windows to prevent cp1252 encoding errors with Rich.
+# fix windows encoding for terminal output
 def _fix_windows_encoding():
     if sys.platform == "win32":
         try:
@@ -45,33 +35,22 @@ DATA_DIR = BASE_DIR / "data"
 
 PARA_CATEGORIES = ["1_Projects", "2_Areas", "3_Resources", "4_Archives"]
 
-# Configuration from .env with sensible defaults
+# defaults (overridable via .env)
 EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "all-MiniLM-L6-v2")
 SIMILARITY_THRESHOLD = float(os.getenv("SIMILARITY_THRESHOLD", "0.65"))
 MAX_LINKS_PER_NOTE = 5
 MIN_WORD_COUNT = 15
 
-# Section header used for injected related links
 RELATED_SECTION_HEADER = "## Related Knowledge"
 
 
-# ---------------------------------------------------------------------------
-# Wiki Note Parser
-# ---------------------------------------------------------------------------
-
 def parse_wiki_note(filepath: Path) -> Optional[Dict[str, Any]]:
-    """
-    Parse a wiki Markdown note, extracting YAML frontmatter fields and body content.
-
-    Returns a dict with keys: path, title, category, tags, summary, body, word_count.
-    Returns None if the file cannot be parsed.
-    """
+    # quick regex parser for YAML frontmatter so we don't need pyyaml
     try:
         text = filepath.read_text(encoding="utf-8")
     except Exception:
         return None
 
-    # Extract YAML frontmatter between --- delimiters
     fm_match = re.match(r"^---\s*\r?\n(.*?)\r?\n---", text, re.DOTALL)
     if not fm_match:
         return None
@@ -80,12 +59,11 @@ def parse_wiki_note(filepath: Path) -> Optional[Dict[str, Any]]:
     body_start = fm_match.end()
     body = text[body_start:].strip()
 
-    # Strip out the ## Related Knowledge section from body for embedding purposes
+    # don't include previously generated related links in the embedding text
     body_for_embedding = re.split(
         r"^## Related Knowledge\s*$", body, flags=re.MULTILINE
     )[0].strip()
 
-    # Parse frontmatter fields with regex (avoid full YAML parser dependency)
     def _extract_fm(key: str) -> str:
         match = re.search(rf'^{key}:\s*"?([^"\n]*)"?\s*$', frontmatter_text, re.MULTILINE)
         return match.group(1).strip() if match else ""
@@ -94,13 +72,11 @@ def parse_wiki_note(filepath: Path) -> Optional[Dict[str, Any]]:
     category = _extract_fm("category")
     summary = _extract_fm("summary")
 
-    # Extract tags list
     tags: List[str] = []
     tags_match = re.search(r"^tags:\s*\n((?:\s+-\s+.+\n?)+)", frontmatter_text, re.MULTILINE)
     if tags_match:
         tags = [t.strip() for t in re.findall(r"-\s+(.+)", tags_match.group(1))]
 
-    # Word count of body content (for short-note filtering)
     words = re.findall(r"[a-zA-Z]+", body_for_embedding)
     word_count = len(words)
 
@@ -116,7 +92,6 @@ def parse_wiki_note(filepath: Path) -> Optional[Dict[str, Any]]:
 
 
 def scan_wiki_notes(wiki_dir: Optional[Path] = None) -> List[Dict[str, Any]]:
-    """Scan all wiki categories and parse every Markdown note."""
     target_wiki = wiki_dir or WIKI_DIR
     notes: List[Dict[str, Any]] = []
 
@@ -134,15 +109,7 @@ def scan_wiki_notes(wiki_dir: Optional[Path] = None) -> List[Dict[str, Any]]:
     return notes
 
 
-# ---------------------------------------------------------------------------
-# Embedding Computation
-# ---------------------------------------------------------------------------
-
 def _load_embedding_model(model_name: Optional[str] = None):
-    """
-    Load the SentenceTransformer model. Returns the model instance.
-    Raises ImportError if sentence-transformers is not installed.
-    """
     try:
         from sentence_transformers import SentenceTransformer
     except ImportError:
@@ -156,10 +123,7 @@ def _load_embedding_model(model_name: Optional[str] = None):
 
 
 def _compose_embedding_text(note: Dict[str, Any]) -> str:
-    """
-    Build the text payload to embed for a note.
-    Combines title, summary, and body for richer signal.
-    """
+    # combine title + summary + body text for a fuller semantic representation
     parts = []
     if note.get("title"):
         parts.append(note["title"])
@@ -175,10 +139,6 @@ def compute_embeddings(
     model=None,
     model_name: Optional[str] = None,
 ) -> List[Any]:
-    """
-    Compute dense vector embeddings for a list of parsed wiki notes.
-    Returns a list of numpy arrays (384-dim each for MiniLM).
-    """
     if model is None:
         model = _load_embedding_model(model_name)
 
@@ -187,12 +147,7 @@ def compute_embeddings(
     return list(embeddings)
 
 
-# ---------------------------------------------------------------------------
-# Cosine Similarity
-# ---------------------------------------------------------------------------
-
 def cosine_similarity(vec_a, vec_b) -> float:
-    """Compute cosine similarity between two vectors."""
     import numpy as np
 
     a = np.asarray(vec_a, dtype=np.float64)
@@ -211,7 +166,6 @@ def cosine_similarity(vec_a, vec_b) -> float:
 def compute_similarity_matrix(
     embeddings: List[Any],
 ) -> List[List[float]]:
-    """Compute NxN pairwise cosine similarity matrix."""
     import numpy as np
 
     n = len(embeddings)
@@ -220,15 +174,13 @@ def compute_similarity_matrix(
     if n == 0:
         return matrix
 
-    # Stack into a matrix for efficient computation
     emb_array = np.array(embeddings, dtype=np.float64)
     norms = np.linalg.norm(emb_array, axis=1, keepdims=True)
 
-    # Avoid division by zero
     norms = np.where(norms == 0, 1.0, norms)
     normalized = emb_array / norms
 
-    # Full similarity matrix via dot product
+    # dot product on normalized vectors = cosine similarity
     sim_matrix = np.dot(normalized, normalized.T)
 
     for i in range(n):
@@ -238,23 +190,16 @@ def compute_similarity_matrix(
     return matrix
 
 
-# ---------------------------------------------------------------------------
-# Wikilink Extraction & Injection
-# ---------------------------------------------------------------------------
-
 def _extract_existing_wikilinks(text: str) -> set:
-    """Extract all existing [[wikilink]] titles from a note's text."""
     return set(re.findall(r"\[\[([^\]]+)\]\]", text))
 
 
 def _strip_related_section(text: str) -> str:
-    """Remove the ## Related Knowledge section and everything below it."""
     parts = re.split(r"^## Related Knowledge\s*$", text, flags=re.MULTILINE)
     return parts[0].rstrip() + "\n"
 
 
 def _build_related_section(linked_titles: List[str]) -> str:
-    """Build the ## Related Knowledge markdown section."""
     lines = [
         "",
         RELATED_SECTION_HEADER,
@@ -273,17 +218,10 @@ def find_links(
     max_links: int = MAX_LINKS_PER_NOTE,
     min_words: int = MIN_WORD_COUNT,
 ) -> Dict[int, List[Tuple[int, float]]]:
-    """
-    Determine which notes should be linked based on similarity scores.
-
-    Returns a dict mapping note index → list of (target_index, similarity_score),
-    sorted by descending similarity, capped at max_links, excluding self-links
-    and short notes.
-    """
     n = len(notes)
     links: Dict[int, List[Tuple[int, float]]] = {i: [] for i in range(n)}
 
-    # Identify notes that are too short for reliable linking
+    # ignore super short stub notes to prevent noisy false positives
     short_indices = {i for i, note in enumerate(notes) if note["word_count"] < min_words}
 
     for i in range(n):
@@ -293,15 +231,14 @@ def find_links(
         candidates: List[Tuple[int, float]] = []
         for j in range(n):
             if i == j:
-                continue  # Skip self-link
+                continue
             if j in short_indices:
-                continue  # Skip short target notes
+                continue
 
             sim = similarity_matrix[i][j]
             if sim >= threshold:
                 candidates.append((j, sim))
 
-        # Sort by similarity descending, cap at max_links
         candidates.sort(key=lambda x: x[1], reverse=True)
         links[i] = candidates[:max_links]
 
@@ -312,13 +249,7 @@ def inject_wikilinks(
     notes: List[Dict[str, Any]],
     links: Dict[int, List[Tuple[int, float]]],
 ) -> int:
-    """
-    Inject bidirectional [[wikilinks]] into wiki note files under ## Related Knowledge.
-
-    First strips any existing Related Knowledge section, then appends fresh links.
-    Returns the number of notes modified.
-    """
-    # Build a bidirectional link map: note_index → set of target indices
+    # make links bidirectional so both notes reference each other
     bidir_links: Dict[int, set] = {i: set() for i in range(len(notes))}
     for i, targets in links.items():
         for j, _score in targets:
@@ -338,10 +269,8 @@ def inject_wikilinks(
         except Exception:
             continue
 
-        # Strip existing related section
         clean_content = _strip_related_section(content)
 
-        # Gather target titles (deduplicate against any remaining wikilinks)
         existing_links = _extract_existing_wikilinks(clean_content)
         new_titles = []
         for j in sorted(target_indices):
@@ -350,13 +279,11 @@ def inject_wikilinks(
                 new_titles.append(target_title)
 
         if not new_titles:
-            # Restore file without related section if it was there before
             if RELATED_SECTION_HEADER in content:
                 filepath.write_text(clean_content, encoding="utf-8")
                 modified_count += 1
             continue
 
-        # Build and append the related section
         related_section = _build_related_section(new_titles)
         new_content = clean_content + related_section
 
@@ -367,7 +294,6 @@ def inject_wikilinks(
 
 
 def clear_all_related_sections(wiki_dir: Optional[Path] = None) -> int:
-    """Remove ## Related Knowledge sections from all wiki notes. Returns count of modified files."""
     target_wiki = wiki_dir or WIKI_DIR
     modified = 0
 
@@ -390,19 +316,11 @@ def clear_all_related_sections(wiki_dir: Optional[Path] = None) -> int:
     return modified
 
 
-# ---------------------------------------------------------------------------
-# Embedding Persistence
-# ---------------------------------------------------------------------------
-
 def _save_embeddings(
     notes: List[Dict[str, Any]],
     embeddings: List[Any],
     data_dir: Optional[Path] = None,
 ) -> Path:
-    """
-    Persist computed embeddings and note metadata to data/embeddings.pkl.
-    Returns the path to the saved file.
-    """
     import numpy as np
 
     target_dir = data_dir or DATA_DIR
@@ -436,10 +354,6 @@ def _save_embeddings(
 
 
 def load_embeddings(data_dir: Optional[Path] = None) -> Optional[Dict[str, Any]]:
-    """
-    Load persisted embeddings from data/embeddings.pkl.
-    Returns the full payload dict or None if file doesn't exist.
-    """
     target_dir = data_dir or DATA_DIR
     pkl_path = target_dir / "embeddings.pkl"
 
@@ -450,10 +364,6 @@ def load_embeddings(data_dir: Optional[Path] = None) -> Optional[Dict[str, Any]]
         return pickle.load(f)
 
 
-# ---------------------------------------------------------------------------
-# Full Pipeline Orchestrator
-# ---------------------------------------------------------------------------
-
 def run_auto_linking(
     wiki_dir: Optional[Path] = None,
     model=None,
@@ -462,20 +372,10 @@ def run_auto_linking(
     max_links: int = MAX_LINKS_PER_NOTE,
     min_words: int = MIN_WORD_COUNT,
 ) -> Dict[str, Any]:
-    """
-    Run the full auto-linking pipeline:
-    1. Scan wiki notes
-    2. Compute embeddings
-    3. Calculate similarity matrix
-    4. Find links above threshold
-    5. Inject bidirectional wikilinks
-
-    Returns summary statistics dict.
-    """
     target_wiki = wiki_dir or WIKI_DIR
     sim_threshold = threshold if threshold is not None else SIMILARITY_THRESHOLD
 
-    # Step 1: Scan notes
+    # 1. scan notes
     console.print("[bold blue]Step 1/5:[/bold blue] Scanning wiki notes...")
     notes = scan_wiki_notes(target_wiki)
     if not notes:
@@ -484,7 +384,6 @@ def run_auto_linking(
 
     console.print(f"  Found [cyan]{len(notes)}[/cyan] notes across PARA categories.")
 
-    # Filter out short notes for reporting
     linkable_notes = [n for n in notes if n["word_count"] >= min_words]
     short_notes = [n for n in notes if n["word_count"] < min_words]
     if short_notes:
@@ -492,23 +391,21 @@ def run_auto_linking(
             f"  [dim]{len(short_notes)} notes skipped (< {min_words} words)[/dim]"
         )
 
-    # Step 2: Clear existing related sections for clean re-linking
+    # 2. clear old links so we don't accumulate duplicates
     console.print("[bold blue]Step 2/5:[/bold blue] Clearing existing related sections...")
     cleared = clear_all_related_sections(target_wiki)
     if cleared:
         console.print(f"  Cleared [dim]{cleared}[/dim] existing sections.")
-    # Re-scan after clearing (body text changed)
     notes = scan_wiki_notes(target_wiki)
 
-    # Step 3: Compute embeddings
+    # 3. compute embeddings
     console.print(f"[bold blue]Step 3/5:[/bold blue] Computing embeddings with '{model_name or EMBEDDING_MODEL}'...")
     embeddings = compute_embeddings(notes, model=model, model_name=model_name)
     console.print(f"  Computed [cyan]{len(embeddings)}[/cyan] embedding vectors.")
 
-    # Persist embeddings to data/embeddings.pkl
     _save_embeddings(notes, embeddings, data_dir=DATA_DIR)
 
-    # Step 4: Compute similarity matrix & find links
+    # 4. compute similarity matrix
     console.print("[bold blue]Step 4/5:[/bold blue] Computing pairwise similarity...")
     sim_matrix = compute_similarity_matrix(embeddings)
     link_map = find_links(
@@ -524,20 +421,18 @@ def run_auto_linking(
         f"(threshold >= {sim_threshold})."
     )
 
-    # Step 5: Inject wikilinks
+    # 5. inject [[wikilinks]]
     console.print("[bold blue]Step 5/5:[/bold blue] Injecting bidirectional wikilinks...")
     modified = inject_wikilinks(notes, link_map)
 
-    # Summary
     console.print()
-    console.print(f"[bold green][OK] Auto-linking complete![/bold green]")
+    console.print(f"[bold green]Auto-linking complete![/bold green]")
     console.print(f"  Notes scanned:    {len(notes)}")
     console.print(f"  Notes linked:     {modified}")
     console.print(f"  Link pairs found: {total_link_pairs}")
     console.print(f"  Similarity threshold: {sim_threshold}")
     console.print()
 
-    # Print detailed link table
     if total_link_pairs > 0:
         link_table = Table(title="Auto-Linked Note Pairs", show_lines=True)
         link_table.add_column("Source Note", style="cyan", max_width=35)
@@ -563,13 +458,9 @@ def run_auto_linking(
     }
 
 
-# ---------------------------------------------------------------------------
-# Click CLI
-# ---------------------------------------------------------------------------
-
 @click.group()
 def main():
-    """SecondSelf Auto-Linker — Connect related wiki notes using dense embeddings."""
+    """Auto-link wiki notes using dense embeddings."""
     pass
 
 
@@ -587,14 +478,12 @@ def main():
     help=f"Minimum word count to include note (default: {MIN_WORD_COUNT}).",
 )
 def run_cmd(threshold: Optional[float], max_links: int, min_words: int):
-    """Run the full auto-linking pipeline."""
-    console.print("\n[bold magenta]>> Connect the Dots — Dense Embedding Auto-Linker[/bold magenta]\n")
+    console.print("\n[bold magenta]Running Semantic Auto-Linker...[/bold magenta]\n")
     run_auto_linking(threshold=threshold, max_links=max_links, min_words=min_words)
 
 
 @main.command("status")
 def status_cmd():
-    """Show embedding and linking statistics for wiki notes."""
     notes = scan_wiki_notes()
     if not notes:
         console.print("[bold yellow]No wiki notes found.[/bold yellow]")
@@ -603,7 +492,6 @@ def status_cmd():
     linkable = [n for n in notes if n["word_count"] >= MIN_WORD_COUNT]
     short = [n for n in notes if n["word_count"] < MIN_WORD_COUNT]
 
-    # Count notes with existing Related Knowledge sections
     linked_count = 0
     total_links = 0
     for note in notes:
@@ -625,7 +513,6 @@ def status_cmd():
     console.print(f"  Similarity threshold: {SIMILARITY_THRESHOLD}")
     console.print()
 
-    # Per-category breakdown
     for cat in PARA_CATEGORIES:
         cat_notes = [n for n in notes if n["category"] == cat]
         console.print(f"    {cat}: {len(cat_notes)} notes")
@@ -635,16 +522,14 @@ def status_cmd():
 @main.command("clear")
 @click.confirmation_option(prompt="Remove all ## Related Knowledge sections from wiki notes?")
 def clear_cmd():
-    """Remove all auto-generated Related Knowledge sections."""
     console.print("\n[bold yellow]Clearing all Related Knowledge sections...[/bold yellow]")
     count = clear_all_related_sections()
-    console.print(f"[bold green][OK] Cleared {count} notes.[/bold green]\n")
+    console.print(f"[bold green]Cleared {count} notes.[/bold green]\n")
 
 
 @main.command("show")
-@click.option("--full", is_flag=True, default=False, help="Show full embedding vectors (verbose).")
+@click.option("--full", is_flag=True, default=False, help="Show full embedding vectors.")
 def show_cmd(full: bool):
-    """Display stored embeddings from data/embeddings.pkl."""
     data = load_embeddings()
     if data is None:
         console.print("[bold yellow]No embeddings found. Run 'python link.py run' first.[/bold yellow]")
@@ -683,7 +568,6 @@ def show_cmd(full: bool):
 
 
 def cli_entrypoint():
-    """Smart CLI entrypoint allowing direct execution or explicit subcommands."""
     _fix_windows_encoding()
     if len(sys.argv) == 1:
         sys.argv.insert(1, "run")

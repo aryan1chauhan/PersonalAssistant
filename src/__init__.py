@@ -1,5 +1,2 @@
-"""
-SecondSelf: Personal AI Second Brain Package
-"""
-
+# secondself package
 __version__ = "0.1.0"

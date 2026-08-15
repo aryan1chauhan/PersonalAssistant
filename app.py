@@ -1,11 +1,5 @@
-"""
-SecondSelf — Personal AI Second Brain | Streamlit Dashboard (Phase 5.2)
-
-Single deployable Streamlit app with three tabs:
-  Tab 1: Living Brain Visualizer — Interactive vis-network knowledge graph
-  Tab 2: Ask Your Brain — RAG-powered Q&A with source citations
-  Tab 3: Quick Capture — Ingest notes, URLs, and files directly from the UI
-"""
+# app.py - streamlit web interface
+# tabs: visual graph, rag q&a, quick capture
 
 import sys
 import json
@@ -17,11 +11,10 @@ from datetime import datetime
 import streamlit as st
 import streamlit.components.v1 as components
 
-# Ensure workspace root is on sys.path
 BASE_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(BASE_DIR))
 
-# Synchronize Streamlit Cloud secrets to os.environ for backend modules
+# copy streamlit cloud secrets into os.environ so backend modules can find them
 try:
     if hasattr(st, "secrets") and st.secrets:
         for key, val in st.secrets.items():
@@ -36,12 +29,7 @@ from src.link import scan_wiki_notes, run_auto_linking, load_embeddings, PARA_CA
 from src.build_graph import build_graph, export_graph_json, export_graph_html
 from src.ask import ask, retrieve_relevant_notes
 
-# Ensure runtime directories exist on fresh cloud container
 ensure_directories()
-
-# ---------------------------------------------------------------------------
-# Page Configuration
-# ---------------------------------------------------------------------------
 
 st.set_page_config(
     page_title="SecondSelf — AI Second Brain",
@@ -50,15 +38,10 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# ---------------------------------------------------------------------------
-# Global CSS
-# ---------------------------------------------------------------------------
-
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
 
-    /* ─── UI/UX Pro Max Design Tokens ─── */
     :root {
         --bg-main: #0b0f19;
         --bg-surface: #151c2c;
@@ -79,7 +62,6 @@ st.markdown("""
         --shadow-elevation: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
     }
 
-    /* ─── Global Reset & Typography ─── */
     .stApp {
         background-color: var(--bg-main) !important;
         font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif !important;
@@ -92,7 +74,6 @@ st.markdown("""
         letter-spacing: -0.02em !important;
     }
 
-    /* ─── Header Brand Banner ─── */
     .brand-header {
         background: linear-gradient(135deg, rgba(56, 189, 248, 0.06) 0%, rgba(129, 140, 248, 0.08) 50%, rgba(192, 132, 252, 0.05) 100%);
         border: 1px solid var(--border-subtle);
@@ -139,7 +120,6 @@ st.markdown("""
         box-shadow: var(--shadow-glow);
     }
 
-    /* ─── Stat Grid Cards ─── */
     .stat-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -178,7 +158,6 @@ st.markdown("""
         margin-top: 6px;
     }
 
-    /* ─── Source Citation Cards ─── */
     .source-card {
         background: var(--gradient-card);
         border: 1px solid var(--border-subtle);
@@ -218,7 +197,6 @@ st.markdown("""
     .relevance-med  { background: rgba(251, 191, 36, 0.18); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.3); }
     .relevance-low  { background: rgba(148, 163, 184, 0.18); color: #94a3b8; border: 1px solid rgba(148, 163, 184, 0.3); }
 
-    /* ─── Q&A Output Container ─── */
     .answer-container {
         background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(56, 189, 248, 0.05));
         border: 1px solid rgba(52, 211, 153, 0.3);
@@ -228,7 +206,6 @@ st.markdown("""
         box-shadow: 0 10px 30px -10px rgba(16, 185, 129, 0.15);
     }
 
-    /* ─── Capture Success Card ─── */
     .capture-success {
         background: linear-gradient(135deg, rgba(52, 211, 153, 0.12), rgba(16, 185, 129, 0.06));
         border: 1px solid rgba(52, 211, 153, 0.3);
@@ -243,7 +220,6 @@ st.markdown("""
         font-weight: 700;
     }
 
-    /* ─── Tab Styling ─── */
     .stTabs [data-baseweb="tab-list"] {
         gap: 12px;
         background: transparent;
@@ -263,13 +239,11 @@ st.markdown("""
         border-bottom: 2px solid var(--brand-cyan) !important;
     }
 
-    /* ─── Category Colors ─── */
     .cat-projects  { color: #3b82f6; font-weight: 600; }
     .cat-areas     { color: #10b981; font-weight: 600; }
     .cat-resources { color: #f59e0b; font-weight: 600; }
     .cat-archives  { color: #64748b; font-weight: 600; }
 
-    /* ─── Custom Buttons ─── */
     .stButton > button {
         border-radius: 10px !important;
         font-weight: 600 !important;
@@ -280,19 +254,13 @@ st.markdown("""
         box-shadow: var(--shadow-glow) !important;
     }
 
-    /* ─── Hide Streamlit branding ─── */
     #MainMenu { visibility: hidden; }
     footer { visibility: hidden; }
 </style>
 """, unsafe_allow_html=True)
 
 
-# ---------------------------------------------------------------------------
-# Sidebar
-# ---------------------------------------------------------------------------
-
 def render_sidebar():
-    """Render the global sidebar with system info and quick actions."""
     with st.sidebar:
         st.markdown("""
         <div style="text-align:center; padding: 16px 0;">
@@ -302,13 +270,12 @@ def render_sidebar():
                         -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
                 SecondSelf
             </div>
-            <div style="font-size: 0.75rem; color: #64748b;">Personal AI Second Brain</div>
+            <div style="font-size: 0.75rem; color: #64748b;">Personal Knowledge Base</div>
         </div>
         """, unsafe_allow_html=True)
 
         st.divider()
 
-        # System Status
         st.markdown("##### 📊 System Status")
         notes = scan_wiki_notes()
         embeddings = load_embeddings()
@@ -321,7 +288,6 @@ def render_sidebar():
             emb_count = len(embeddings["notes"])
         col2.metric("Indexed", emb_count)
 
-        # Per-category breakdown
         cat_counts = {}
         for note in notes:
             cat = note.get("category", "Unknown")
@@ -340,14 +306,13 @@ def render_sidebar():
 
         st.divider()
 
-        # Pipeline Actions
-        st.markdown("##### ⚡ Pipeline Actions")
+        st.markdown("##### ⚡ Actions")
 
         if st.button("🔄 Rebuild Embeddings", use_container_width=True, key="sidebar_rebuild_emb"):
             with st.spinner("Computing embeddings..."):
                 try:
                     run_auto_linking()
-                    st.success("[OK] Embeddings rebuilt & notes re-linked!")
+                    st.success("Embeddings rebuilt & notes re-linked!")
                     st.rerun()
                 except Exception as e:
                     st.error(f"Error: {e}")
@@ -358,7 +323,7 @@ def render_sidebar():
                     graph = build_graph()
                     export_graph_json(graph)
                     export_graph_html(graph)
-                    st.success(f"[OK] Graph rebuilt: {graph['metadata']['total_nodes']} nodes, {graph['metadata']['total_edges']} edges")
+                    st.success(f"Graph rebuilt: {graph['metadata']['total_nodes']} nodes, {graph['metadata']['total_edges']} edges")
                     st.rerun()
                 except Exception as e:
                     st.error(f"Error: {e}")
@@ -367,14 +332,13 @@ def render_sidebar():
             with st.spinner("Classifying unprocessed captures..."):
                 try:
                     created = batch_classify()
-                    st.success(f"[OK] Classified {len(created)} items")
+                    st.success(f"Classified {len(created)} items")
                     st.rerun()
                 except Exception as e:
                     st.error(f"Error: {e}")
 
         st.divider()
 
-        # LLM Provider Status
         st.markdown("##### 🔑 LLM Providers")
         for name, env_var in [("Groq", "GROQ_API_KEY"), ("Gemini", "GEMINI_API_KEY"), ("OpenAI", "OPENAI_API_KEY")]:
             key = os.getenv(env_var, "")
@@ -384,25 +348,18 @@ def render_sidebar():
                 st.caption(f"❌ {name}: not set")
 
 
-# ---------------------------------------------------------------------------
-# Tab 1: Living Brain Visualizer
-# ---------------------------------------------------------------------------
-
 def render_brain_tab():
-    """Render the interactive knowledge graph visualization tab."""
-
-    # Load graph data
     graph_json_path = BASE_DIR / "graph.json"
     graph_html_path = BASE_DIR / "static" / "graph.html"
 
     if not graph_json_path.exists():
-        st.warning("⚠️ No graph.json found. Click **Rebuild Graph** in the sidebar first.")
+        st.warning("No graph.json found yet. Click **Rebuild Graph** in the sidebar to generate it.")
         if st.button("🗺️ Build Graph Now", key="build_graph_brain"):
             with st.spinner("Building knowledge graph..."):
                 graph = build_graph()
                 export_graph_json(graph)
                 export_graph_html(graph)
-                st.success("[OK] Graph built!")
+                st.success("Graph built!")
                 st.rerun()
         return
 
@@ -411,7 +368,6 @@ def render_brain_tab():
 
     metadata = graph_data.get("metadata", {})
 
-    # Stat cards
     st.markdown(f"""
     <div class="stat-grid">
         <div class="stat-card">
@@ -441,16 +397,13 @@ def render_brain_tab():
     </div>
     """, unsafe_allow_html=True)
 
-    # Render interactive graph via embedded HTML
     if graph_html_path.exists():
         graph_html = graph_html_path.read_text(encoding="utf-8")
         components.html(graph_html, height=650, scrolling=False)
     else:
-        # Fallback: build inline vis-network from graph.json
         _render_inline_graph(graph_data)
 
-    # Graph legend
-    with st.expander("📖 Graph Legend & Tips", expanded=False):
+    with st.expander("📖 Graph Legend & Controls", expanded=False):
         col1, col2 = st.columns(2)
         with col1:
             st.markdown("""
@@ -466,12 +419,11 @@ def render_brain_tab():
             - 🟣 **Tag nodes** — Shared topic labels
             - 💎 **Category nodes** — PARA groupings
 
-            **Interactions**: Drag nodes, scroll to zoom, hover for previews
+            **Controls**: Drag nodes, scroll to zoom, hover for preview summaries
             """)
 
 
 def _render_inline_graph(graph_data):
-    """Fallback inline vis-network renderer if static HTML is missing."""
     json_str = json.dumps(graph_data, ensure_ascii=False)
 
     html = f"""
@@ -516,28 +468,21 @@ def _render_inline_graph(graph_data):
     components.html(html, height=640, scrolling=False)
 
 
-# ---------------------------------------------------------------------------
-# Tab 2: Ask Your Brain
-# ---------------------------------------------------------------------------
-
 def render_ask_tab():
-    """Render the RAG Q&A search tab."""
-
     st.markdown("""
     <div style="text-align: center; margin-bottom: 24px;">
         <div style="font-size: 2.4rem;">🔮</div>
         <p style="color: #94a3b8; font-size: 0.9rem; margin-top: 4px;">
-            Ask questions in natural language — answers are grounded in your personal notes.
+            Ask questions in plain English — answers are pulled directly from your notes.
         </p>
     </div>
     """, unsafe_allow_html=True)
 
-    # Search form
     col1, col2, col3 = st.columns([5, 1, 1])
     with col1:
         question = st.text_input(
             "Ask your brain",
-            placeholder="e.g. What AI projects am I working on?",
+            placeholder="e.g. What projects am I currently working on?",
             label_visibility="collapsed",
             key="ask_question",
         )
@@ -546,10 +491,10 @@ def render_ask_tab():
     with col3:
         provider = st.selectbox("LLM", ["auto", "groq", "gemini", "openai"], index=0, key="ask_provider")
 
-    search_clicked = st.button("🔍  Ask Your Brain", type="primary", use_container_width=True, key="ask_submit")
+    search_clicked = st.button("🔍  Ask", type="primary", use_container_width=True, key="ask_submit")
 
     if search_clicked and question.strip():
-        with st.spinner("🔮 Searching your knowledge base and synthesizing answer..."):
+        with st.spinner("Searching notes and generating answer..."):
             try:
                 provider_arg = None if provider == "auto" else provider
                 result = ask(
@@ -558,15 +503,13 @@ def render_ask_tab():
                     provider=provider_arg,
                 )
 
-                # Display answer
                 st.markdown("---")
-                st.markdown("### 🔮 Answer")
+                st.markdown("### Answer")
                 st.markdown(result["answer"])
 
-                # Display sources
                 if result["sources"]:
                     st.markdown("---")
-                    st.markdown("### 📚 Sources")
+                    st.markdown("### Sources")
 
                     for i, src in enumerate(result["sources"], 1):
                         score = src["similarity_score"]
@@ -593,7 +536,6 @@ def render_ask_tab():
                         </div>
                         """, unsafe_allow_html=True)
 
-                # Footer
                 st.caption(f"Provider: **{result['provider']}** · Notes retrieved: **{result['retrieval_count']}**")
 
             except Exception as e:
@@ -602,7 +544,6 @@ def render_ask_tab():
     elif search_clicked:
         st.warning("Please enter a question.")
 
-    # Recent knowledge overview
     st.markdown("---")
     with st.expander("📋 Knowledge Base Overview", expanded=False):
         notes = scan_wiki_notes()
@@ -620,18 +561,12 @@ def render_ask_tab():
             st.info("No notes yet. Use the **Quick Capture** tab to add your first notes!")
 
 
-# ---------------------------------------------------------------------------
-# Tab 3: Quick Capture
-# ---------------------------------------------------------------------------
-
 def render_capture_tab():
-    """Render the quick capture interface for notes, URLs, and files."""
-
     st.markdown("""
     <div style="text-align: center; margin-bottom: 24px;">
         <div style="font-size: 2.4rem;">📥</div>
         <p style="color: #94a3b8; font-size: 0.9rem; margin-top: 4px;">
-            Capture notes, web links, or files — they'll be classified and indexed automatically.
+            Save notes, links, or files — automatically organized and indexed into your brain.
         </p>
     </div>
     """, unsafe_allow_html=True)
@@ -647,47 +582,44 @@ def render_capture_tab():
 
     st.markdown("---")
 
-    # ── Text Note ──
     if capture_type == "📝 Text Note":
         title = st.text_input("Note Title (optional)", key="note_title",
-                              placeholder="e.g. Meeting notes — Sprint Planning")
+                              placeholder="e.g. Meeting notes — Architecture sync")
         content = st.text_area("Note Content", height=200, key="note_content",
                                placeholder="Write your thoughts, ideas, or notes here...")
 
-        auto_classify = st.checkbox("🤖 Auto-classify after capture", value=True, key="note_auto_classify")
+        auto_classify = st.checkbox("Auto-classify after capture", value=True, key="note_auto_classify")
 
-        if st.button("💾 Capture Note", type="primary", use_container_width=True, key="note_submit"):
+        if st.button("💾 Save Note", type="primary", use_container_width=True, key="note_submit"):
             if not content.strip():
                 st.warning("Please enter some note content.")
             else:
-                with st.spinner("Capturing note..."):
+                with st.spinner("Saving note..."):
                     try:
                         record = capture_item("note", content.strip(), title=title.strip() or None)
                         _show_capture_success(record, auto_classify)
                     except Exception as e:
                         st.error(f"Capture failed: {e}")
 
-    # ── Web Link ──
     elif capture_type == "🔗 Web Link":
         url = st.text_input("URL", key="link_url",
                             placeholder="https://example.com/interesting-article")
         title = st.text_input("Title Override (optional)", key="link_title",
                               placeholder="Leave blank to auto-extract from page")
 
-        auto_classify = st.checkbox("🤖 Auto-classify after capture", value=True, key="link_auto_classify")
+        auto_classify = st.checkbox("Auto-classify after capture", value=True, key="link_auto_classify")
 
-        if st.button("🌐 Capture Link", type="primary", use_container_width=True, key="link_submit"):
+        if st.button("🌐 Save Link", type="primary", use_container_width=True, key="link_submit"):
             if not url.strip():
                 st.warning("Please enter a URL.")
             else:
-                with st.spinner("Scraping and capturing link..."):
+                with st.spinner("Scraping and saving link..."):
                     try:
                         record = capture_item("link", url.strip(), title=title.strip() or None)
                         _show_capture_success(record, auto_classify)
                     except Exception as e:
                         st.error(f"Capture failed: {e}")
 
-    # ── File Upload ──
     elif capture_type == "📄 File Upload":
         uploaded_file = st.file_uploader(
             "Upload a file (PDF, TXT, MD, or any text document)",
@@ -697,15 +629,14 @@ def render_capture_tab():
         title = st.text_input("Title Override (optional)", key="file_title",
                               placeholder="Leave blank to use filename")
 
-        auto_classify = st.checkbox("🤖 Auto-classify after capture", value=True, key="file_auto_classify")
+        auto_classify = st.checkbox("Auto-classify after capture", value=True, key="file_auto_classify")
 
-        if st.button("📤 Capture File", type="primary", use_container_width=True, key="file_submit"):
+        if st.button("📤 Upload File", type="primary", use_container_width=True, key="file_submit"):
             if uploaded_file is None:
                 st.warning("Please upload a file first.")
             else:
-                with st.spinner("Processing and capturing file..."):
+                with st.spinner("Processing file..."):
                     try:
-                        # Save uploaded file to a temp location
                         suffix = Path(uploaded_file.name).suffix
                         with tempfile.NamedTemporaryFile(delete=False, suffix=suffix, dir=str(BASE_DIR)) as tmp:
                             tmp.write(uploaded_file.getbuffer())
@@ -713,7 +644,6 @@ def render_capture_tab():
 
                         record = capture_item("file", tmp_path, title=title.strip() or None)
 
-                        # Clean up temp file
                         try:
                             os.unlink(tmp_path)
                         except OSError:
@@ -726,8 +656,6 @@ def render_capture_tab():
 
 
 def _show_capture_success(record: dict, auto_classify: bool):
-    """Display capture success and optionally auto-classify."""
-
     st.markdown(f"""
     <div class="capture-success">
         <h4>✅ Captured Successfully!</h4>
@@ -742,7 +670,7 @@ def _show_capture_success(record: dict, auto_classify: bool):
 
     if auto_classify:
         st.markdown("---")
-        with st.spinner("🤖 Auto-classifying with AI..."):
+        with st.spinner("Auto-classifying..."):
             try:
                 classification = classify_raw_item(record)
                 wiki_path = write_wiki_note(record, classification)
@@ -761,33 +689,24 @@ def _show_capture_success(record: dict, auto_classify: bool):
                 )
 
             except Exception as e:
-                st.warning(f"Auto-classification failed: {e}\n\nThe raw capture was still saved. "
-                           "You can classify it later using the sidebar.")
+                st.warning(f"Auto-classification failed: {e}\n\nThe raw capture was still saved.")
 
-
-# ---------------------------------------------------------------------------
-# Main Application
-# ---------------------------------------------------------------------------
 
 def main():
-    """Main Streamlit application entrypoint."""
-
     render_sidebar()
 
-    # Brand Header
     st.markdown("""
     <div class="brand-header">
         <div>
             <h1 class="brand-title">🧠 SecondSelf</h1>
-            <p class="brand-subtitle">Your Personal AI Second Brain — Capture, Organize, Visualize, Ask</p>
+            <p class="brand-subtitle">Personal Knowledge Base — Capture, Organize, Visualize, Ask</p>
         </div>
-        <span class="brand-badge">🏅 The Oracle</span>
+        <span class="brand-badge">SecondSelf v0.1.0</span>
     </div>
     """, unsafe_allow_html=True)
 
-    # Tabs
     tab1, tab2, tab3 = st.tabs([
-        "🗺️  Living Brain",
+        "🗺️  Knowledge Graph",
         "🔮  Ask Your Brain",
         "📥  Quick Capture",
     ])
@@ -802,6 +721,4 @@ def main():
         render_capture_tab()
 
 
-# Streamlit Cloud runs `streamlit run app.py` which does NOT trigger __main__.
-# Call main() unconditionally so the app renders in all execution contexts.
 main()

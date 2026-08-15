@@ -1,10 +1,8 @@
-"""
-SecondSelf Knowledge Graph Data Model Exporter — "The Cartographer" (Phase 4.1)
-
-Parses all wiki notes, extracts nodes (notes, categories, tags) and edges
-(explicit wikilinks, semantic similarity, category membership, tag membership),
-and exports the full graph as a structured graph.json file.
-"""
+# build_graph.py
+# constructs the knowledge graph from wiki notes:
+# - extracts nodes (notes, categories, tags)
+# - extracts edges (explicit [[wikilinks]], semantic similarity edges, category/tag links)
+# - outputs graph.json and standalone interactive static/graph.html via vis-network.js
 
 import os
 import sys
@@ -20,7 +18,6 @@ from rich.console import Console
 from rich.table import Table
 from dotenv import load_dotenv
 
-# Ensure workspace root is on sys.path
 BASE_DIR = Path(__file__).resolve().parent.parent
 if str(BASE_DIR) not in sys.path:
     sys.path.insert(0, str(BASE_DIR))
@@ -35,13 +32,8 @@ from src.link import (
     SIMILARITY_THRESHOLD,
 )
 
-# ---------------------------------------------------------------------------
-# Setup
-# ---------------------------------------------------------------------------
-
 load_dotenv()
 
-# Force UTF-8 stdout on Windows to prevent cp1252 encoding errors with Rich.
 def _fix_windows_encoding():
     if sys.platform == "win32":
         try:
@@ -61,24 +53,12 @@ DATA_DIR = BASE_DIR / "data"
 GRAPH_JSON_PATH = BASE_DIR / "graph.json"
 
 
-# ---------------------------------------------------------------------------
-# Node Builders
-# ---------------------------------------------------------------------------
-
 def _note_slug(note: Dict[str, Any]) -> str:
-    """Generate a stable slug ID for a note node from its file path."""
     filepath = note["path"]
-    # Use category/filename_stem as unique ID
     return f"{filepath.parent.name}/{filepath.stem}"
 
 
 def build_note_nodes(notes: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """
-    Build note-type graph nodes from parsed wiki notes.
-
-    Each note becomes a node with:
-      id, label, group (PARA category), type="note", summary, tags, word_count, file_path.
-    """
     nodes = []
     for note in notes:
         node = {
@@ -96,9 +76,6 @@ def build_note_nodes(notes: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
 
 
 def build_category_nodes(notes: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """
-    Build category-type graph nodes — one per PARA category that has at least one note.
-    """
     populated_categories: Set[str] = set()
     for note in notes:
         cat = note.get("category", "")
@@ -117,9 +94,6 @@ def build_category_nodes(notes: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
 
 
 def build_tag_nodes(notes: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """
-    Build tag-type graph nodes — one per unique tag across all notes.
-    """
     all_tags: Set[str] = set()
     for note in notes:
         for tag in note.get("tags", []):
@@ -138,14 +112,7 @@ def build_tag_nodes(notes: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     return nodes
 
 
-# ---------------------------------------------------------------------------
-# Edge Builders
-# ---------------------------------------------------------------------------
-
 def build_category_edges(notes: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """
-    Build edges connecting each note to its PARA category node.
-    """
     edges = []
     for note in notes:
         cat = note.get("category", "")
@@ -160,9 +127,6 @@ def build_category_edges(notes: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
 
 
 def build_tag_edges(notes: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """
-    Build edges connecting each note to its tag nodes.
-    """
     edges = []
     for note in notes:
         for tag in note.get("tags", []):
@@ -178,13 +142,11 @@ def build_tag_edges(notes: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
 
 
 def _extract_wikilink_titles(filepath: Path) -> List[str]:
-    """Extract [[wikilink]] titles from the ## Related Knowledge section of a note."""
     try:
         content = filepath.read_text(encoding="utf-8")
     except Exception:
         return []
 
-    # Split on the Related Knowledge header and only look at that section
     parts = re.split(r"^## Related Knowledge\s*$", content, flags=re.MULTILINE)
     if len(parts) < 2:
         return []
@@ -196,13 +158,6 @@ def _extract_wikilink_titles(filepath: Path) -> List[str]:
 def build_wikilink_edges(
     notes: List[Dict[str, Any]],
 ) -> List[Dict[str, Any]]:
-    """
-    Build edges from explicit [[wikilinks]] in ## Related Knowledge sections.
-
-    Only creates edges where both the source and target notes exist.
-    Dangling links (pointing to non-existent notes) are skipped.
-    """
-    # Build title → slug lookup for resolving wikilink targets
     title_to_slug: Dict[str, str] = {}
     for note in notes:
         title_to_slug[note["title"]] = _note_slug(note)
@@ -217,11 +172,10 @@ def build_wikilink_edges(
         for target_title in linked_titles:
             target_slug = title_to_slug.get(target_title)
             if target_slug is None:
-                continue  # Dangling link — target note doesn't exist
+                continue
             if target_slug == source_slug:
-                continue  # Self-link — skip
+                continue
 
-            # Deduplicate: normalize pair order so A→B and B→A become one edge
             pair = tuple(sorted([source_slug, target_slug]))
             if pair in seen_pairs:
                 continue
@@ -242,12 +196,6 @@ def build_semantic_edges(
     data_dir: Optional[Path] = None,
     threshold: Optional[float] = None,
 ) -> List[Dict[str, Any]]:
-    """
-    Build edges from semantic similarity data stored in data/embeddings.pkl.
-
-    Loads pre-computed embeddings and finds all note pairs above the similarity
-    threshold. Returns empty list if embeddings file doesn't exist.
-    """
     target_dir = data_dir or DATA_DIR
     sim_threshold = threshold if threshold is not None else SIMILARITY_THRESHOLD
 
@@ -259,17 +207,14 @@ def build_semantic_edges(
     if len(emb_notes) < 2:
         return []
 
-    # Build path → slug lookup for current notes
     path_to_slug: Dict[str, str] = {}
     for note in notes:
         path_to_slug[str(note["path"])] = _note_slug(note)
 
-    # Build path → embedding lookup from stored data
     path_to_emb: Dict[str, Any] = {}
     for rec in emb_notes:
         path_to_emb[rec["path"]] = rec["embedding"]
 
-    # Find all note paths that exist in both current wiki and stored embeddings
     common_paths = [p for p in path_to_slug if p in path_to_emb]
     if len(common_paths) < 2:
         return []
@@ -298,32 +243,20 @@ def build_semantic_edges(
     return edges
 
 
-# ---------------------------------------------------------------------------
-# Full Graph Builder
-# ---------------------------------------------------------------------------
-
 def build_graph(
     wiki_dir: Optional[Path] = None,
     data_dir: Optional[Path] = None,
     threshold: Optional[float] = None,
 ) -> Dict[str, Any]:
-    """
-    Build the complete knowledge graph data model.
-
-    Returns a dict with 'metadata', 'nodes', and 'edges' keys.
-    """
     target_wiki = wiki_dir or WIKI_DIR
 
-    # Parse all wiki notes
     notes = scan_wiki_notes(target_wiki)
 
-    # Build nodes
     note_nodes = build_note_nodes(notes)
     category_nodes = build_category_nodes(notes)
     tag_nodes = build_tag_nodes(notes)
     all_nodes = note_nodes + category_nodes + tag_nodes
 
-    # Build edges
     category_edges = build_category_edges(notes)
     tag_edges = build_tag_edges(notes)
     wikilink_edges = build_wikilink_edges(notes)
@@ -362,10 +295,6 @@ def export_graph_json(
     graph: Dict[str, Any],
     output_path: Optional[Path] = None,
 ) -> Path:
-    """
-    Write the graph data model to a JSON file.
-    Returns the path of the written file.
-    """
     target_path = output_path or GRAPH_JSON_PATH
 
     with open(target_path, "w", encoding="utf-8") as f:
@@ -378,9 +307,6 @@ def export_graph_html(
     graph: Dict[str, Any],
     output_path: Optional[Path] = None,
 ) -> Path:
-    """
-    Export an interactive standalone HTML graph visualization using vis-network.
-    """
     target_path = output_path or GRAPH_HTML_PATH
     target_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -740,13 +666,9 @@ def export_graph_html(
     return target_path
 
 
-# ---------------------------------------------------------------------------
-# Click CLI
-# ---------------------------------------------------------------------------
-
 @click.group()
 def main():
-    """SecondSelf Graph Builder — Export wiki notes as a knowledge graph."""
+    """Build and export the knowledge graph."""
     pass
 
 
@@ -760,8 +682,7 @@ def main():
     help=f"Cosine similarity threshold for semantic edges (default: {SIMILARITY_THRESHOLD}).",
 )
 def run_cmd(output: Optional[str], threshold: Optional[float]):
-    """Build the knowledge graph and export graph.json and static/graph.html."""
-    console.print("\n[bold magenta]>> The Cartographer — Knowledge Graph Builder[/bold magenta]\n")
+    console.print("\n[bold magenta]Building Knowledge Graph...[/bold magenta]\n")
 
     console.print("[bold blue]Step 1/3:[/bold blue] Building graph data model...")
     graph = build_graph(threshold=threshold)
@@ -782,16 +703,15 @@ def run_cmd(output: Optional[str], threshold: Optional[float]):
     result_path = export_graph_json(graph, output_path=out_path)
     console.print(f"  Saved to [cyan]{result_path}[/cyan]")
 
-    console.print("\n[bold blue]Step 3/3:[/bold blue] Exporting interactive HTML visualizer...")
+    console.print("\n[bold blue]Step 3/3:[/bold blue] Exporting HTML visualizer...")
     html_path = export_graph_html(graph)
     console.print(f"  Saved to [cyan]{html_path}[/cyan]")
 
-    console.print(f"\n[bold green][OK] Knowledge graph and HTML visualizer exported successfully![/bold green]\n")
+    console.print(f"\n[bold green]Graph exported successfully![/bold green]\n")
 
 
 @main.command("status")
 def status_cmd():
-    """Show graph statistics from existing graph.json."""
     if not GRAPH_JSON_PATH.exists():
         console.print("[bold yellow]No graph.json found. Run 'python build_graph.py run' first.[/bold yellow]")
         return
@@ -821,7 +741,6 @@ def status_cmd():
     console.print(f"    Tag:         {edge_counts.get('tag', 0)}")
     console.print()
 
-    # Show note node details
     nodes = graph.get("nodes", [])
     note_nodes = [n for n in nodes if n.get("type") == "note"]
     if note_nodes:
@@ -843,14 +762,13 @@ def status_cmd():
 
 
 def cli_entrypoint():
-    """Smart CLI entrypoint allowing direct execution or explicit subcommands."""
     _fix_windows_encoding()
     if len(sys.argv) == 1:
         sys.argv.insert(1, "run")
     elif len(sys.argv) > 1:
         first_arg = sys.argv[1]
         valid_commands = ["run", "status", "--help", "-h"]
-        if first_arg not in valid_commands and not first_arg.startswith("-"):
+        if first_arg not in valid_commands:
             sys.argv.insert(1, "run")
     main()
 

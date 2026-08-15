@@ -1,10 +1,5 @@
-"""
-SecondSelf AI Classification Engine — "The Sorting Hat"
-
-Reads raw captures from raw/, classifies them into PARA categories using an LLM
-(Groq → Gemini → OpenAI fallback chain, with a deterministic rule-based fallback),
-and writes structured Markdown notes with YAML frontmatter into wiki/{category}/{slug}.md.
-"""
+# classify.py
+# organizes raw notes/links into PARA folders using Groq/Gemini/OpenAI or simple keyword matching
 
 import os
 import sys
@@ -20,21 +15,15 @@ from rich.table import Table
 from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn
 from dotenv import load_dotenv
 
-# Ensure workspace root is on sys.path
 BASE_DIR = Path(__file__).resolve().parent.parent
 if str(BASE_DIR) not in sys.path:
     sys.path.insert(0, str(BASE_DIR))
 
 from src.utils import slugify
 
-# ---------------------------------------------------------------------------
-# Setup
-# ---------------------------------------------------------------------------
-
 load_dotenv()
 
-# Force UTF-8 stdout on Windows to prevent cp1252 encoding errors with Rich.
-# Only applied during direct CLI execution, not when imported by pytest.
+# fix windows terminal encoding quirks so rich doesn't crash on emoji/symbols
 def _fix_windows_encoding():
     if sys.platform == "win32":
         try:
@@ -54,16 +43,12 @@ WIKI_DIR = BASE_DIR / "wiki"
 
 PARA_CATEGORIES = ["1_Projects", "2_Areas", "3_Resources", "4_Archives"]
 
-# Groq model preferences (tried in order)
+# preferred groq models (fastest/best first)
 GROQ_MODELS = [
     "llama-3.3-70b-versatile",
     "llama3-70b-8192",
     "llama-3.1-8b-instant",
 ]
-
-# ---------------------------------------------------------------------------
-# Classification prompt
-# ---------------------------------------------------------------------------
 
 CLASSIFICATION_PROMPT = """You are a personal knowledge organizer. Classify the following captured item using the PARA methodology.
 
@@ -94,12 +79,7 @@ Respond with ONLY valid JSON (no markdown fences, no extra text):
 {{"category": "1_Projects|2_Areas|3_Resources|4_Archives", "tags": ["tag1", "tag2", "tag3"], "summary": "One-line summary here", "title": "Clean Descriptive Title"}}"""
 
 
-# ---------------------------------------------------------------------------
-# LLM Providers
-# ---------------------------------------------------------------------------
-
 def _call_groq(prompt: str) -> str:
-    """Call Groq API with retry logic. Returns raw response text."""
     from groq import Groq
     from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
@@ -128,7 +108,6 @@ def _call_groq(prompt: str) -> str:
         )
         return response.choices[0].message.content
 
-    # Try each Groq model in order
     last_err = None
     for model in GROQ_MODELS:
         try:
@@ -140,7 +119,6 @@ def _call_groq(prompt: str) -> str:
 
 
 def _call_gemini(prompt: str) -> str:
-    """Call Google Gemini API. Returns raw response text."""
     from google import genai
     from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
@@ -167,7 +145,6 @@ def _call_gemini(prompt: str) -> str:
 
 
 def _call_openai(prompt: str) -> str:
-    """Call OpenAI API. Returns raw response text."""
     from openai import OpenAI
     from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
@@ -199,11 +176,7 @@ def _call_openai(prompt: str) -> str:
     return _invoke()
 
 
-# ---------------------------------------------------------------------------
-# Rule-based fallback classifier
-# ---------------------------------------------------------------------------
-
-# Keyword buckets for deterministic classification
+# simple rule-based fallback when offline or no API keys provided
 _PROJECT_KEYWORDS = [
     "deadline", "milestone", "sprint", "deliverable", "ship", "launch",
     "release", "roadmap", "mvp", "deploy", "build", "implement",
@@ -221,7 +194,6 @@ _ARCHIVE_KEYWORDS = [
 
 
 def _rule_based_classify(record: Dict[str, Any]) -> Dict[str, Any]:
-    """Deterministic keyword-based PARA classifier used when no LLM is available."""
     content = (record.get("raw_content", "") + " " + record.get("title", "")).lower()
     words = set(re.findall(r"[a-z]+", content))
 
@@ -238,7 +210,7 @@ def _rule_based_classify(record: Dict[str, Any]) -> Dict[str, Any]:
     else:
         category = "3_Resources"
 
-    # Extract tag candidates — most frequent meaningful words (>3 chars)
+    # grab top frequent words as tags
     word_freq: Dict[str, int] = {}
     for w in re.findall(r"[a-z]{4,}", content):
         if w not in {"this", "that", "with", "from", "your", "have", "been", "will",
@@ -264,26 +236,17 @@ def _rule_based_classify(record: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
-# ---------------------------------------------------------------------------
-# JSON extraction helper
-# ---------------------------------------------------------------------------
-
 def _extract_json(text: str) -> Dict[str, Any]:
-    """
-    Robustly extract a JSON object from an LLM response that may contain
-    markdown fences, preamble text, or trailing commentary.
-    """
-    # Strip markdown code fences
+    # sometimes models wrap json in ```json ... ``` despite system prompt
     text = re.sub(r"```(?:json)?\s*", "", text)
     text = re.sub(r"```\s*$", "", text)
 
-    # Try direct parse first
     try:
         return json.loads(text.strip())
     except json.JSONDecodeError:
         pass
 
-    # Find first {...} block
+    # fallback: scan for the first balanced json object
     match = re.search(r"\{[^{}]*\}", text, re.DOTALL)
     if match:
         try:
@@ -294,20 +257,11 @@ def _extract_json(text: str) -> Dict[str, Any]:
     raise ValueError(f"Could not extract valid JSON from LLM response:\n{text[:500]}")
 
 
-# ---------------------------------------------------------------------------
-# Core classification function
-# ---------------------------------------------------------------------------
-
 def classify_raw_item(
     raw_record: Dict[str, Any],
     provider: Optional[str] = None,
 ) -> Dict[str, Any]:
-    """
-    Classify a single raw capture record into PARA category, tags, summary, and title.
-
-    Provider fallback chain: groq → gemini → openai → rule-based.
-    Returns dict with keys: category, tags, summary, title.
-    """
+    # first 2k chars is enough for classification
     content_preview = (raw_record.get("raw_content", "") or "")[:2000]
     prompt = CLASSIFICATION_PROMPT.format(
         item_type=raw_record.get("type", "note"),
@@ -318,7 +272,6 @@ def classify_raw_item(
 
     providers: List[Tuple[str, Any]] = []
     if provider:
-        # User explicitly requested a specific provider
         provider_map = {
             "groq": ("groq", _call_groq),
             "gemini": ("gemini", _call_gemini),
@@ -330,7 +283,7 @@ def classify_raw_item(
         else:
             raise ValueError(f"Unknown provider '{provider}'. Choose: groq, gemini, openai, rule")
     else:
-        # Auto fallback chain
+        # fallback chain: groq -> gemini -> openai -> rules
         providers = [
             ("groq", _call_groq),
             ("gemini", _call_gemini),
@@ -352,14 +305,13 @@ def classify_raw_item(
             used_provider = name
             break
         except Exception as e:
-            console.print(f"  [dim yellow]⚠ {name} failed: {e}[/dim yellow]")
+            console.print(f"  [dim yellow]Provider {name} failed: {e}[/dim yellow]")
             continue
 
     if result is None:
         result = _rule_based_classify(raw_record)
         used_provider = "rule"
 
-    # Validate and sanitize output
     category = result.get("category", "3_Resources")
     if category not in PARA_CATEGORIES:
         category = "3_Resources"
@@ -386,12 +338,7 @@ def classify_raw_item(
     }
 
 
-# ---------------------------------------------------------------------------
-# Wiki note writer
-# ---------------------------------------------------------------------------
-
 def find_note_by_id(raw_id: str, wiki_dir: Optional[Path] = None) -> Optional[Path]:
-    """Scan wiki notes for an existing note matching the raw record ID."""
     if not raw_id:
         return None
     target_wiki = wiki_dir or WIKI_DIR
@@ -415,28 +362,20 @@ def write_wiki_note(
     classification: Dict[str, Any],
     wiki_dir: Optional[Path] = None,
 ) -> Path:
-    """
-    Write a classified Markdown note with YAML frontmatter to wiki/{category}/{slug}.md.
-    If a note with the same raw record ID already exists in wiki/, update/overwrite it
-    (removing the old file if category changed) instead of creating duplicate _1, _2 files.
-    Returns the Path of the created file.
-    """
     target_wiki = wiki_dir or WIKI_DIR
     category = classification["category"]
     category_dir = target_wiki / category
     category_dir.mkdir(parents=True, exist_ok=True)
     raw_id = raw_record.get("id", "")
 
-    # Check if a note for this exact raw capture ID already exists
     existing_note_path = find_note_by_id(raw_id, target_wiki) if raw_id else None
     title = classification["title"]
 
     if existing_note_path:
         if existing_note_path.parent.name == category:
-            # Overwrite at current path for the same raw item ID
             slug_path = existing_note_path
         else:
-            # Category changed: remove old file and compute new target path
+            # moved to a new category, clean up old file
             slug_base = slugify(title)
             slug_path = category_dir / f"{slug_base}.md"
             counter = 1
@@ -448,7 +387,6 @@ def write_wiki_note(
             except Exception:
                 pass
     else:
-        # New capture ID: handle slug collisions with other distinct notes
         slug_base = slugify(title)
         slug_path = category_dir / f"{slug_base}.md"
         counter = 1
@@ -460,7 +398,6 @@ def write_wiki_note(
             slug_path = category_dir / f"{slug_base_new}.md"
         classification["title"] = title
 
-    # Format YAML frontmatter
     tags_yaml = "\n".join(f"  - {tag}" for tag in classification["tags"])
     created_at = raw_record.get("timestamp", datetime.now().astimezone().isoformat())
 
@@ -477,16 +414,13 @@ def write_wiki_note(
         f'classified_by: "{classification.get("provider", "unknown")}"',
     ]
 
-    # Include attachment metadata if present
     attachment = raw_record.get("attachment")
     if attachment and isinstance(attachment, dict):
         frontmatter_lines.append(f'attachment_file: "{_escape_yaml_string(attachment.get("original_filename", ""))}"')
 
     frontmatter_lines.append("---")
-
     frontmatter = "\n".join(frontmatter_lines)
 
-    # Format body content
     raw_content = raw_record.get("raw_content", "").strip()
     source_info = raw_record.get("source", "")
 
@@ -519,16 +453,10 @@ def write_wiki_note(
 
 
 def _escape_yaml_string(s: str) -> str:
-    """Escape quotes and backslashes for safe YAML double-quoted strings."""
     return s.replace("\\", "\\\\").replace('"', '\\"').replace("\n", " ").strip()
 
 
-# ---------------------------------------------------------------------------
-# Tracking already-classified items
-# ---------------------------------------------------------------------------
-
 def _get_classified_ids(wiki_dir: Optional[Path] = None) -> set:
-    """Scan all wiki notes and extract raw IDs from their frontmatter."""
     target_wiki = wiki_dir or WIKI_DIR
     classified = set()
     for category in PARA_CATEGORIES:
@@ -546,10 +474,6 @@ def _get_classified_ids(wiki_dir: Optional[Path] = None) -> set:
     return classified
 
 
-# ---------------------------------------------------------------------------
-# Batch classification pipeline
-# ---------------------------------------------------------------------------
-
 def batch_classify(
     raw_dir: Optional[Path] = None,
     wiki_dir: Optional[Path] = None,
@@ -557,31 +481,23 @@ def batch_classify(
     provider: Optional[str] = None,
     target_id: Optional[str] = None,
 ) -> List[Path]:
-    """
-    Classify all raw captures (or a single one by ID) and write wiki notes.
-    Returns list of created wiki note paths.
-    """
     target_raw = raw_dir or RAW_DIR
     target_wiki = wiki_dir or WIKI_DIR
 
-    # Ensure wiki directories exist
     for cat in PARA_CATEGORIES:
         (target_wiki / cat).mkdir(parents=True, exist_ok=True)
 
-    # Gather raw JSON files
     raw_files = sorted(target_raw.glob("*.json"))
     if not raw_files:
         console.print("[bold yellow]No raw captures found in raw/ directory.[/bold yellow]")
         return []
 
-    # Filter to single ID if specified
     if target_id:
         raw_files = [f for f in raw_files if f.stem == target_id]
         if not raw_files:
             console.print(f"[bold red]Raw capture '{target_id}' not found.[/bold red]")
             return []
 
-    # Get already-classified IDs to skip duplicates
     already_classified = set() if force else _get_classified_ids(target_wiki)
 
     created_paths: List[Path] = []
@@ -616,13 +532,11 @@ def batch_classify(
 
             record_id = record.get("id", raw_file.stem)
 
-            # Skip already classified unless forced
             if record_id in already_classified:
                 skipped += 1
                 progress.advance(task)
                 continue
 
-            # Classify
             try:
                 classification = classify_raw_item(record, provider=provider)
             except Exception as e:
@@ -630,7 +544,6 @@ def batch_classify(
                 progress.advance(task)
                 continue
 
-            # Write wiki note
             try:
                 wiki_path = write_wiki_note(record, classification, wiki_dir=target_wiki)
                 created_paths.append(wiki_path)
@@ -646,26 +559,21 @@ def batch_classify(
 
             progress.advance(task)
 
-    # Print summary
     console.print()
     if created_paths:
         console.print(results_table)
     console.print(
-        f"\n[bold green][OK] Classified {len(created_paths)} items[/bold green]"
-        f" | [dim]{skipped} skipped (already classified)[/dim]"
+        f"\n[bold green]Done! Classified {len(created_paths)} items[/bold green]"
+        f" | [dim]{skipped} skipped[/dim]"
         f" | [dim]{len(raw_files) - len(created_paths) - skipped} errors[/dim]"
     )
 
     return created_paths
 
 
-# ---------------------------------------------------------------------------
-# Click CLI
-# ---------------------------------------------------------------------------
-
 @click.group()
 def main():
-    """SecondSelf AI Classifier — Organize raw captures into PARA wiki notes."""
+    """Classify captured notes into PARA directories."""
     pass
 
 
@@ -680,14 +588,12 @@ def main():
     help="Force a specific LLM provider instead of auto-fallback.",
 )
 def run_cmd(classify_all: bool, target_id: Optional[str], force: bool, provider: Optional[str]):
-    """Run PARA classification on raw captures."""
-    console.print("\n[bold magenta]>> The Sorting Hat -- PARA AI Classifier[/bold magenta]\n")
+    console.print("\n[bold magenta]Running PARA Classifier...[/bold magenta]\n")
     batch_classify(force=force, provider=provider, target_id=target_id)
 
 
 @main.command("status")
 def status_cmd():
-    """Show classification status: raw vs. classified counts."""
     raw_files = list(RAW_DIR.glob("*.json"))
     classified_ids = _get_classified_ids()
 
@@ -706,7 +612,6 @@ def status_cmd():
     console.print(f"  Classified:    {len(classified_ids)}")
     console.print(f"  Pending:       {len(pending)}")
 
-    # Show per-category counts
     for cat in PARA_CATEGORIES:
         cat_dir = WIKI_DIR / cat
         count = len(list(cat_dir.glob("*.md"))) if cat_dir.exists() else 0
@@ -715,16 +620,13 @@ def status_cmd():
 
 
 def cli_entrypoint():
-    """Smart CLI entrypoint allowing direct execution, flags, or explicit subcommands."""
     _fix_windows_encoding()
     if len(sys.argv) == 1:
-        # Default 'python classify.py' to run
         sys.argv.insert(1, "run")
     elif len(sys.argv) > 1:
         first_arg = sys.argv[1]
         valid_commands = ["run", "status", "--help", "-h"]
         if first_arg not in valid_commands:
-            # Automatically route flags like --force, --provider, etc. to run
             sys.argv.insert(1, "run")
     main()
 
