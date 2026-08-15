@@ -7,10 +7,21 @@ venv/
 env/
 .env
 
-# Temporary & Test Files
-scratch/
-.pytest_cache/
-*.log
+# ── Personal / Runtime Data (never push to public repo) ──
+wiki/
+raw/
+data/
+
+# ── Development-Only Artifacts ──
+Implementation-plan.md
+ProblemStatement.md
+deployment-plan.md
+architecture.md
+edge-case.md
+docs/
+tests/
+pytest.ini
+sample_document.txt
 
 # IDE & Operating System
 .vscode/
@@ -19,7 +30,7 @@ scratch/
 Thumbs.db
 pyrefly.toml
 
-# Vector Cache (intermediate files, not the final embeddings)
+# Vector intermediate cache
 .chroma/
 *.vector/
 
