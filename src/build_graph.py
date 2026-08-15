@@ -20,6 +20,11 @@ from rich.console import Console
 from rich.table import Table
 from dotenv import load_dotenv
 
+# Ensure workspace root is on sys.path
+BASE_DIR = Path(__file__).resolve().parent.parent
+if str(BASE_DIR) not in sys.path:
+    sys.path.insert(0, str(BASE_DIR))
+
 from src.link import (
     scan_wiki_notes,
     parse_wiki_note,

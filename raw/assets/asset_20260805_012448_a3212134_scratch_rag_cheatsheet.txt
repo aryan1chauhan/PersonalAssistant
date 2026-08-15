@@ -1,0 +1,5 @@
+RAG Indexing Cheat Sheet:
+- Chunk Size: 500 characters with 50 overlap
+- Embedding Model: sentence-transformers/all-MiniLM-L6-v2
+- Retrieval: Top 3 matching passages
+- Prompting: Enforce strict citations back to source note files.

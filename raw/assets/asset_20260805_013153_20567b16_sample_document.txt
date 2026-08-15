@@ -1,0 +1,4 @@
+# Sample Document for SecondSelf
+
+This is a real local text file captured into SecondSelf.
+It contains notes on System Architecture, PARA Categorization, and Vector Search.

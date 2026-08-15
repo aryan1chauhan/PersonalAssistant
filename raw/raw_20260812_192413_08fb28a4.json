@@ -1,0 +1,12 @@
+{
+  "id": "raw_20260812_192413_08fb28a4",
+  "timestamp": "2026-08-12T19:24:13.451135+05:30",
+  "type": "note",
+  "source": "This note verifies that user can capture notes via Quick Capture tab. We are testing the input text area and checking auto-classification.",
+  "title": "Testing Note Capture feature",
+  "raw_content": "This note verifies that user can capture notes via Quick Capture tab. We are testing the input text area and checking auto-classification.",
+  "tags": [
+    "uncategorized",
+    "raw_ingest"
+  ]
+}

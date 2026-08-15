@@ -21,11 +21,23 @@ import streamlit.components.v1 as components
 BASE_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(BASE_DIR))
 
+# Synchronize Streamlit Cloud secrets to os.environ for backend modules
+try:
+    if hasattr(st, "secrets") and st.secrets:
+        for key, val in st.secrets.items():
+            if isinstance(val, str) and key not in os.environ:
+                os.environ[key] = val
+except Exception:
+    pass
+
 from src.capture import capture_item, ensure_directories
 from src.classify import classify_raw_item, write_wiki_note, batch_classify
 from src.link import scan_wiki_notes, run_auto_linking, load_embeddings, PARA_CATEGORIES
 from src.build_graph import build_graph, export_graph_json, export_graph_html
 from src.ask import ask, retrieve_relevant_notes
+
+# Ensure runtime directories exist on fresh cloud container
+ensure_directories()
 
 # ---------------------------------------------------------------------------
 # Page Configuration
@@ -790,5 +802,6 @@ def main():
         render_capture_tab()
 
 
-if __name__ == "__main__":
-    main()
+# Streamlit Cloud runs `streamlit run app.py` which does NOT trigger __main__.
+# Call main() unconditionally so the app renders in all execution contexts.
+main()

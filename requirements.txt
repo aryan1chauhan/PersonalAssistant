@@ -15,7 +15,6 @@ pypdf>=3.15.0
 
 # Embeddings & AI Models
 sentence-transformers>=2.2.2
-torch>=2.0.0
 google-genai>=0.1.0
 groq>=0.4.0
 openai>=1.0.0
@@ -27,4 +26,8 @@ networkx>=3.0
 
 # Utilities & Testing
 tenacity>=8.2.0
-pytest>=7.4.0
+numpy>=1.24.0
+
+# PyTorch CPU-only (saves ~1.5 GB vs full CUDA bundle)
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch

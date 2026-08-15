@@ -7,15 +7,10 @@ venv/
 env/
 .env
 
-# Runtime Data (user captures — generated at runtime, not source code)
-raw/
-wiki/
-
 # Temporary & Test Files
 scratch/
 .pytest_cache/
 *.log
-sample_document.txt
 
 # IDE & Operating System
 .vscode/
@@ -24,13 +19,14 @@ sample_document.txt
 Thumbs.db
 pyrefly.toml
 
-# Data & Vector Cache
+# Vector Cache (intermediate files, not the final embeddings)
 .chroma/
 *.vector/
-data/*.pkl
-data/
 
 # Build & Distribution
 dist/
 build/
 *.egg-info/
+
+# Streamlit Secrets (never commit real secrets)
+.streamlit/secrets.toml

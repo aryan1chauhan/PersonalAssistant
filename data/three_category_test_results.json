@@ -1,0 +1,175 @@
+[
+  {
+    "test_id": "D1",
+    "category": "Direct Question",
+    "question": "What are my fitness routines and gym habits?",
+    "target_note": "Gym Fitness Routine",
+    "notes_retrieved_count": 1,
+    "retrieved_notes": [
+      {
+        "title": "Gym Fitness Routine",
+        "category": "2_Areas",
+        "similarity_score": 0.5913
+      }
+    ],
+    "top_match_title": "Gym Fitness Routine",
+    "top_match_score": 0.5913,
+    "llm_provider": "groq",
+    "response_time_sec": 51.56,
+    "full_answer": "## Fitness Routines and Gym Habits\nYour fitness routine involves going to the gym for 1-2 hours every day to build strength, endurance, and physical discipline, as outlined in [Gym Fitness Routine]. The goal is to establish a consistent daily routine. \n\nSpecific details about the routine, such as the types of exercises or specific activities, are not provided in the given context [Gym Fitness Routine]."
+  },
+  {
+    "test_id": "D2",
+    "category": "Direct Question",
+    "question": "What is my dream career goal and what skills do I need to achieve it?",
+    "target_note": "NVIDIA Career Goal",
+    "notes_retrieved_count": 2,
+    "retrieved_notes": [
+      {
+        "title": "NVIDIA Career Goal",
+        "category": "2_Areas",
+        "similarity_score": 0.5262
+      },
+      {
+        "title": "Python DSA Career",
+        "category": "2_Areas",
+        "similarity_score": 0.331
+      }
+    ],
+    "top_match_title": "NVIDIA Career Goal",
+    "top_match_score": 0.5262,
+    "llm_provider": "groq",
+    "response_time_sec": 15.65,
+    "full_answer": "## Answer\nMy dream career goal is to work as an AI / Software Systems Engineer at NVIDIA, as stated in [NVIDIA Career Goal]. To achieve this goal, I need to master specific skills, including:\n* CUDA\n* GPU computing\n* AI architecture\n* Large-scale deep learning infrastructure\n\nThese skills are mentioned in [NVIDIA Career Goal] as the key areas of focus for my career aspiration. Additionally, building strong fundamentals in programming, particularly in Python, and preparing for Data Structures and Algorithms (DSA) as mentioned in [Python DSA Career], may also be beneficial for a software engineering role, but the direct skills required for the NVIDIA AI engineer goal are outlined in [NVIDIA Career Goal]."
+  },
+  {
+    "test_id": "D3",
+    "category": "Direct Question",
+    "question": "What did I accomplish during the MediRoute hackathon?",
+    "target_note": "Mediroute Hackathon",
+    "notes_retrieved_count": 1,
+    "retrieved_notes": [
+      {
+        "title": "Mediroute Hackathon",
+        "category": "1_Projects",
+        "similarity_score": 0.5581
+      }
+    ],
+    "top_match_title": "Mediroute Hackathon",
+    "top_match_score": 0.5581,
+    "llm_provider": "groq",
+    "response_time_sec": 14.6,
+    "full_answer": "### Accomplishments During the Mediroute Hackathon\n\nAccording to the notes in [Mediroute Hackathon], during the Mediroute hackathon, you accomplished the following:\n* Built the 'Mediroute' project entirely solo.\n* Handled end-to-end architecture of the project.\n* Implemented healthcare routing and logic for the project.\n* Successfully submitted the project."
+  },
+  {
+    "test_id": "N1",
+    "category": "Question Not Feeded",
+    "question": "What is my favorite coffee shop in Seattle and my usual order there?",
+    "target_note": null,
+    "notes_retrieved_count": 0,
+    "retrieved_notes": [],
+    "top_match_title": null,
+    "top_match_score": 0.0,
+    "llm_provider": "groq",
+    "response_time_sec": 13.88,
+    "full_answer": "There is no information available to answer the question. The context does not contain any notes with relevant information about a favorite coffee shop in Seattle or a usual order. [No relevant notes found in your knowledge base.]"
+  },
+  {
+    "test_id": "N2",
+    "category": "Question Not Feeded",
+    "question": "What is the step-by-step procedure to install Kubernetes on an Arch Linux server?",
+    "target_note": null,
+    "notes_retrieved_count": 0,
+    "retrieved_notes": [],
+    "top_match_title": null,
+    "top_match_score": 0.0,
+    "llm_provider": "groq",
+    "response_time_sec": 15.95,
+    "full_answer": "## Answer\n\nThere is no information available in the provided context to answer the question about installing Kubernetes on an Arch Linux server. \n\nSince there are [no relevant notes found in your knowledge base], it's not possible to provide a step-by-step procedure for the installation."
+  },
+  {
+    "test_id": "N3",
+    "category": "Question Not Feeded",
+    "question": "What were the key takeaways from my meeting with the venture capital investors last Tuesday?",
+    "target_note": null,
+    "notes_retrieved_count": 0,
+    "retrieved_notes": [],
+    "top_match_title": null,
+    "top_match_score": 0.0,
+    "llm_provider": "groq",
+    "response_time_sec": 15.02,
+    "full_answer": "## Answer\n\nThere is no information available to answer the question. The context does not contain any notes with relevant information about a meeting with venture capital investors [No relevant notes found in your knowledge base]."
+  },
+  {
+    "test_id": "T1",
+    "category": "Question Feeded but Asked Trickly",
+    "question": "If I want to build a kingdom from scratch and manage fantasy diplomacy like a slime leader, what reference or show should I check out?",
+    "target_note": "Tensura Anime Notes",
+    "notes_retrieved_count": 2,
+    "retrieved_notes": [
+      {
+        "title": "Tensura Anime Notes",
+        "category": "3_Resources",
+        "similarity_score": 0.3353
+      },
+      {
+        "title": "ML For Beginners",
+        "category": "3_Resources",
+        "similarity_score": 0.2551
+      }
+    ],
+    "top_match_title": "Tensura Anime Notes",
+    "top_match_score": 0.3353,
+    "llm_provider": "groq",
+    "response_time_sec": 17.83,
+    "full_answer": "### Recommended Reference for Building a Kingdom and Fantasy Diplomacy\n\nIf you're interested in building a kingdom from scratch and managing fantasy diplomacy like a slime leader, you should check out the anime \"That Time I Got Reincarnated as a Slime\" (Tensura), as mentioned in [Tensura Anime Notes]. This anime is notable for its world-building, Rimuru Tempest's leadership and kingdom building, skill evolutions, and fantasy diplomacy, which might provide valuable inspiration or insights for your endeavor."
+  },
+  {
+    "test_id": "T2",
+    "category": "Question Feeded but Asked Trickly",
+    "question": "What advice or personal reflection do I have written down about opening my heart to a special girl?",
+    "target_note": "Expressing Genuine Care",
+    "notes_retrieved_count": 1,
+    "retrieved_notes": [
+      {
+        "title": "Expressing Genuine Care",
+        "category": "2_Areas",
+        "similarity_score": 0.4673
+      }
+    ],
+    "top_match_title": "Expressing Genuine Care",
+    "top_match_score": 0.4673,
+    "llm_provider": "groq",
+    "response_time_sec": 17.79,
+    "full_answer": "## Answer\n\nYou have written down a personal reflection about expressing your genuine care and devotion to a special girl, wanting to do so sincerely so she truly knows and believes how much she means to you [Expressing Genuine Care]. This indicates your desire to open your heart to her, but the note does not provide specific advice on how to do so, only your intention and feelings."
+  },
+  {
+    "test_id": "T3",
+    "category": "Question Feeded but Asked Trickly",
+    "question": "What hardware optimization topics and low-level parallel programming frameworks should I study for high-performance deep learning systems?",
+    "target_note": "NVIDIA Career Goal",
+    "notes_retrieved_count": 3,
+    "retrieved_notes": [
+      {
+        "title": "NVIDIA Career Goal",
+        "category": "2_Areas",
+        "similarity_score": 0.3653
+      },
+      {
+        "title": "AI Project Development",
+        "category": "1_Projects",
+        "similarity_score": 0.2899
+      },
+      {
+        "title": "Crunch AI Schema",
+        "category": "1_Projects",
+        "similarity_score": 0.2698
+      }
+    ],
+    "top_match_title": "NVIDIA Career Goal",
+    "top_match_score": 0.3653,
+    "llm_provider": "groq",
+    "response_time_sec": 14.07,
+    "full_answer": "## Answer\n\nTo study for high-performance deep learning systems, you should focus on hardware optimization topics and low-level parallel programming frameworks. Specifically, you should master **CUDA** and **GPU computing** [NVIDIA Career Goal]. These skills are essential for optimizing deep learning infrastructure and achieving high-performance capabilities. While the context does not provide an exhaustive list of topics, it highlights the importance of CUDA and GPU computing in achieving your career goal as an AI/Software Systems Engineer at NVIDIA [NVIDIA Career Goal]. Additionally, your experience with AI project development, such as building the Personal Assistant and Crunch AI projects [AI Project Development], may also be relevant in understanding the requirements for high-performance deep learning systems."
+  }
+]
