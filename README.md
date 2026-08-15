@@ -1,81 +1,73 @@
-# SecondSelf — Your Personal AI Second Brain
+# 🧠 SecondSelf — Your Personal AI Second Brain
 
-> Capture anything (note, link, file) → AI classifies & files it (PARA) → AI auto-links related knowledge → Renders a living interactive graph → Ask questions in plain English & get answers from your personal knowledge base.
-
----
-
-## 🌟 System Overview
-
-**SecondSelf** solves the fundamental flaw of traditional notes apps: information goes in, but nothing comes back out. SecondSelf automatically organizes, links, visualizes, and answers questions using your accumulated personal notes.
-
-### End-to-End Pipeline
-```
-Capture any note/link/file (Week 1)
-  ↓
-AI classifies & files it via PARA Method (Week 2)
-  ↓
-AI auto-links related notes using dense embeddings (Week 2)
-  ↓
-Everything renders as an interactive hoverable visual brain graph (Week 3)
-  ↓
-Ask plain-English questions → Grounded answers synthesized from YOUR notes (Week 4)
-  ↓
-Deployed on a public cloud URL (Week 4)
-```
+> Capture anything → AI organizes it → Knowledge auto-links → Visual brain graph → Ask questions & get answers from your own notes.
 
 ---
 
-## 📁 Repository Structure
+## What It Does
 
-```directory
-secondself/
-├── raw/                         # Week 1: Raw captures (timestamp + unique ID)
-│   └── assets/                  # Stored binary attachment assets
-├── wiki/                        # Week 2: Classified + auto-linked notes
-│   ├── 1_Projects/              # Active projects
-│   ├── 2_Areas/                 # Key areas of responsibility
-│   ├── 3_Resources/             # Reference materials & topics
-│   └── 4_Archives/              # Inactive notes
-├── docs/                        # Project documentation
-│   ├── architecture.md          # Architectural blueprint
-│   ├── Implementation-plan.md   # Phase-wise milestone plan
-│   └── edge-case.md             # Edge cases & failure mitigations
-├── src/                         # Core Python package
-│   ├── __init__.py
-│   ├── capture.py               # Ingestion logic & CLI
-│   ├── classify.py              # PARA classifier (LLM)
-│   ├── link.py                  # Embedding calculation & similarity auto-linker
-│   ├── build_graph.py           # Nodes & edges JSON builder
-│   └── ask.py                   # RAG retrieval & answer synthesizer
-├── static/                      # HTML graph visualization templates
-├── ProblemStatement.md          # Project problem statement
-├── app.py                       # Streamlit web dashboard
-└── requirements.txt             # Python dependencies
-```
+**SecondSelf** turns scattered notes, bookmarks, and files into an interconnected, searchable personal knowledge base — powered by AI.
+
+| Feature | Description |
+|---|---|
+| **📥 Smart Capture** | Ingest text notes, web URLs, or file uploads from a single interface. |
+| **🏷️ AI Classification** | Automatically categorizes everything into the PARA system (Projects, Areas, Resources, Archives) using LLMs. |
+| **🔗 Semantic Auto-Linking** | Dense vector embeddings find related notes and inject bidirectional `[[wikilinks]]` — no manual tagging needed. |
+| **🗺️ Interactive Knowledge Graph** | A force-directed vis-network graph visualizes your entire brain with hover previews, drag, and zoom. |
+| **🔮 Ask Your Brain (RAG)** | Ask natural language questions and get answers grounded in your personal notes, with source citations. |
 
 ---
 
-## 🛠️ Setup Instructions
+## Tech Stack
 
-### 1. Initialize Environment
+- **Frontend**: Streamlit dashboard with dark-mode UI
+- **AI Classification**: Groq (Llama 3) → Gemini → OpenAI fallback chain
+- **Embeddings**: `sentence-transformers/all-MiniLM-L6-v2` (384-dim dense vectors)
+- **Graph Engine**: NetworkX + vis-network.js
+- **RAG**: Smart-chunk retrieval with cosine similarity + LLM answer synthesis
+
+---
+
+## Quick Start
+
+### 1. Clone & Install
 ```bash
+git clone https://github.com/aryan1chauhan/PersonalAssistant.git
+cd PersonalAssistant
+
 python -m venv venv
-# On Windows:
+# Windows:
 venv\Scripts\activate
-# On Linux/macOS:
+# macOS/Linux:
 source venv/bin/activate
 
 pip install -r requirements.txt
-cp .env.example .env
 ```
 
-### 2. Set API Keys
-Configure your `.env` file with `GROQ_API_KEY`, `GEMINI_API_KEY`, or `OPENAI_API_KEY`.
+### 2. Configure API Keys
+```bash
+cp .env.example .env
+```
+Edit `.env` and add at least one LLM provider key:
+```
+GROQ_API_KEY=gsk_your_key_here
+GEMINI_API_KEY=AIzaSy_your_key_here
+OPENAI_API_KEY=sk-proj_your_key_here
+```
+
+### 3. Run
+```bash
+streamlit run app.py
+```
 
 ---
 
-## 📜 Documentation Links
-- [ProblemStatement.md](file:///d:/PersonalAssistant/ProblemStatement.md)
-- [architecture.md](file:///d:/PersonalAssistant/architecture.md)
-- [Implementation-plan.md](file:///d:/PersonalAssistant/Implementation-plan.md)
-- [edge-case.md](file:///d:/PersonalAssistant/edge-case.md)
+## Live Demo
+
+Deployed on Streamlit Community Cloud — [Launch App →](https://secondself-brain.streamlit.app)
+
+---
+
+## License
+
+MIT
